@@ -1,55 +1,49 @@
 from pokerkit import Automation, NoLimitTexasHoldem
 
-state = NoLimitTexasHoldem.create_state(
-    (
-        Automation.ANTE_POSTING,
-        Automation.BET_COLLECTION,
-        Automation.BLIND_OR_STRADDLE_POSTING,
-        Automation.CARD_BURNING,
-        Automation.HOLE_CARDS_SHOWING_OR_MUCKING,
-        Automation.HAND_KILLING,
-        Automation.CHIPS_PUSHING,
-        Automation.CHIPS_PULLING,
-    ),
-    True,
-    500,
-    (1000, 2000),
-    2000,
-    (1125600, 2000000, 553500),
-    3,
-)
+class GameState:
 
-# Below shows the pre-flop dealings and actions.
+    def __init__(self, antes: int, blinds_or_straddles: tuple, min_bet: int, 
+    starting_stacks: tuple, player_count: int):
 
-state.deal_hole('Ac2d')  # Ivey
-state.deal_hole('5h7s')  # Antonius*
-state.deal_hole('7h6h')  # Dwan
+        self.state = NoLimitTexasHoldem.create_state(
+            (
+                Automation.ANTE_POSTING,
+                Automation.BET_COLLECTION,
+                Automation.BLIND_OR_STRADDLE_POSTING,
+                Automation.CARD_BURNING,
+                Automation.HOLE_CARDS_SHOWING_OR_MUCKING,
+                Automation.HAND_KILLING,
+                Automation.CHIPS_PUSHING,
+                Automation.CHIPS_PULLING,
+            ),
+            True,
+            antes,    
+            (blinds_or_straddles[0], blinds_or_straddles[1]),   
+            min_bet,   
+            (starting_stacks[0], starting_stacks[1], starting_stacks[2]),     
+            player_count,   
+        )
 
-state.complete_bet_or_raise_to(7000)  # Dwan
-state.complete_bet_or_raise_to(23000)  # Ivey
-state.fold()  # Antonius
-state.check_or_call()  # Dwan
+    # Below shows the pre-flop dealings and actions.
+    def deal_hole(card):
+        self.state.deal_hole("")
+   
+   #state.deal_hole('7h6h')  # Dwan
 
-# Below shows the flop dealing and actions.
+    def complete_bet_or_raise_to(amount):
+        self.state.complete_bet_or_raise_to(amount)  # Dwan
+    
+    def fold():
+        self.state.fold()
 
-state.deal_board('Jc3d5c')
+    def check_or_call():
+        self.state.check_or_call()
 
-state.complete_bet_or_raise_to(35000)  # Ivey
-state.check_or_call()  # Dwan
+    # Below shows the flop dealing and actions.
 
-# Below shows the turn dealing and actions.
+    def deal_board(card):
+        self.state.deal_board("")
 
-state.deal_board('4h')
 
-state.complete_bet_or_raise_to(90000)  # Ivey
-state.complete_bet_or_raise_to(232600)  # Dwan
-state.complete_bet_or_raise_to(1067100)  # Ivey
-state.check_or_call()  # Dwan
 
-# Below shows the river dealing.
-
-state.deal_board('Jh')
-
-# Below shows the final stacks.
-
-print(state.stacks)  # [572100, 1997500, 1109500]
+#print(state.stacks)  # [572100, 1997500, 1109500]
