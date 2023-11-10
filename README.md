@@ -10,3 +10,14 @@ Project Dependencies
 
 - Docker
 - Poetry
+
+## Getting Started
+
+1. Clone the repo
+   ```sh
+   git clone https://github.com/nyublockchainfintech/poker_dapp_backend
+
+2. Install dependencies
+   ```sh
+   poetry install
+   ```

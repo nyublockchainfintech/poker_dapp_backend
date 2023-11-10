@@ -10,6 +10,9 @@ python = "^3.11"
 redis = "^5.0.1"
 fastapi = "^0.104.0"
 uvicorn = {extras = ["standard"], version = "^0.23.2"}
+poker = "^0.30.0"
+pokerkit = "^0.3.0"
+pokerlib = "^2.2.7"
 
 
 [tool.poetry.group.dev.dependencies]
