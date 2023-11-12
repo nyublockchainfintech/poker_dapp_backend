@@ -1,6 +1,9 @@
+from typing import List
 import random
 import json
 from pokerlib.enums import Rank, Suit
+from mapping import encode_rank, encode_suit
+from encryption import symencrypt
 
 
 class Card:
@@ -8,82 +11,64 @@ class Card:
         self.rank = rank
         self.suit = suit
 
-    def serialize(self) -> dict:
-        """
-        Return a dictionary of the card object
-        """
-        return {"rank": self.rank.value, "suit": self.suit.value}
-
-    def deserialize(self, data: dict) -> None:
-        """
-        Deserialize a card from a dictionary
-        """
-        self.rank = Rank(data["rank"])
-        self.suit = Suit(data["suit"])
-
-    def encrypt(self, key):
-        """
-        Encrypt the card
-        """
-        pass
-
     def encode(self) -> str:
         """
         Convert the card to a binary string
 
         Returns:
-            str: Binary string representation of the card
+            str: Encoded card
         """
-        rank = bin(self.rank.value)[2:].zfill(4)
-        suit = bin(self.suit.value)[2:].zfill(2)
-        return rank + suit  # Length of 6
+        return encode_rank(self.rank.value) + encode_suit(self.suit.value)
 
     def __str__(self) -> str:
         return self.rank.name + " of " + self.suit.name
 
 
-class Deck:
+class Dealer:
     def __init__(self) -> None:
-        self.cards = []
+        self.decoded_cards = []
+        self.encoded_cards = ""
         self.build()
+        self.encode()
 
     def build(self) -> None:
         """
-        Build a deck of cards from Suit and Rank enums
+        Build a deck of encoded cards
         """
         for suit in Suit:
             for rank in Rank:
-                self.cards.append(Card(rank, suit))
+                self.decoded_cards.append(Card(rank, suit))
 
-    def encode(self) -> str:
+    def encode(self):
         """
-        Convert the deck of cards to a binary string
+        Encode the deck of cards to a list of binary strings
 
         Returns:
-            str: Binary string representation of the deck of cards
+            List[bytes]: List of binary strings representing the deck of cards
         """
-        return "".join([card.encode() for card in self.cards])
+        self.encoded_cards = "".join(card.encode() for card in self.decoded_cards)
 
-    def decode(self, data: str) -> None:
+    def serialize(self) -> str:
         """
-        Decode a deck of cards from a binary string
+        Serialize the deck of cards to a dictionary
 
-        Args:
-            data (str): Binary string representation of the deck of cards
+        Returns:
+            dict: Dictionary representation of the deck of cards
         """
-        self.cards = []
-        for i in range(0, len(data), 6):
-            card = Card(
-                Rank(int(data[i : i + 4], 2)), Suit(int(data[i + 4 : i + 6], 2))
-            )
-            self.cards.append(card)
+        return json.dumps({"encoded_deck": self.encoded_cards})
 
-    def encrypt(self):
-        """
-        Encrypt the deck of cards
-        """
-        # TODO: Implement encryption
-        pass
+    def __str__(self) -> str:
+        return "\n".join([str(card) for card in self.decoded_cards])
+
+
+class Player:
+    def __init__(self) -> None:
+        self.input_cards = []
+        self.encrypted_cards = []
+        self.output_cards = []
+        self.encoded_cards = ""
+        self.shuffle_round = False
+        self.decrypt_round = False
 
     def shuffle(self, seed: int) -> None:
         """
@@ -93,36 +78,45 @@ class Deck:
             seed (int): Seed for the random number generator
         """
         random.seed(seed)
-        random.shuffle(self.cards)
+        random.shuffle(self.encrypted_cards)
 
-    def draw(self) -> Card:
+    def encrypt(self, key: bytes):
         """
-        Draw a card from the deck
+        Encrypt the entire deck of cards
         """
-        return self.cards.pop()
+        self.encrypted_cards = []
+        for card in self.input_cards:
+            self.encrypted_cards.append(symencrypt(card.encode("utf-8"), key))
 
-    # TODO: Change this to use the encoded value
-    def serialize(self) -> dict:
+    def decrypt(self, key: bytes):
         """
-        Return a dictionary of the deck of cards
+        Decrypt the entire deck of cards
         """
-        return {"cards": [card.serialize() for card in self.cards]}
+        self.encrypt(key)
 
-    def deserialize(self, data: dict) -> None:
+    def encode(self):
         """
-        Deserialize a deck of cards from a dictionary
+        Conver the list of bytes to a binary string
         """
-        self.cards = []
-        for card in data["cards"]:
-            new_card = Card(Rank(card["rank"]), Suit(card["suit"]))
-            self.cards.append(new_card)
+        self.encoded_cards = "".join(
+            [card.decode("utf-8") for card in self.encrypted_cards]
+        )
 
-    def __str__(self) -> str:
-        return "\n".join([str(card) for card in self.cards])
+    def decode(self):
+        """
+        Convert the binary string to a list of card bytes
+        """
+        pass
 
 
 if __name__ == "__main__":
-    deck = Deck()
-    print(deck)
-    deck.shuffle(42)
-    print(deck.encode())
+    dealer = Dealer()
+    print(dealer.encoded_cards)
+    player = Player()
+    player.input_cards = dealer.encoded_cards
+    player.encrypt(b"12345")
+    print(player.encrypted_cards)
+    player.shuffle(1)
+    print(player.encrypted_cards)
+    player.encode()
+    # TODO: Finish this!

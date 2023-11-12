@@ -1,4 +1,4 @@
-def decode_rank(rank):
+def encode_rank(rank):
     """
     Decodes rank from integer to string
 
@@ -9,24 +9,24 @@ def decode_rank(rank):
         string: string representing rank
     """
     rank_mapping = {
-        0: "TWO",
-        1: "THREE",
-        2: "FOUR",
-        3: "FIVE",
-        4: "SIX",
-        5: "SEVEN",
-        6: "EIGHT",
-        7: "NINE",
-        8: "TEN",
-        9: "JACK",
-        10: "QUEEN",
-        11: "KING",
-        12: "ACE",
+        0: "1",
+        1: "2",
+        2: "3",
+        3: "4",
+        4: "5",
+        5: "6",
+        6: "7",
+        7: "8",
+        8: "9",
+        9: "J",
+        10: "Q",
+        11: "K",
+        12: "A",
     }
     return rank_mapping[rank]
 
 
-def decode_suit(suit):
+def encode_suit(suit):
     """
     Decodes suit from integer to string
 
@@ -37,9 +37,9 @@ def decode_suit(suit):
         string: string representing suit
     """
     suit_mapping = {
-        0: "SPADE",
-        1: "CLUB",
-        2: "DIAMOND",
-        3: "HEART",
+        0: "s",
+        1: "c",
+        2: "d",
+        3: "h",
     }
     return suit_mapping[suit]
