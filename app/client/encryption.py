@@ -1,5 +1,3 @@
-import libnum
-import sys
 import hashlib
 import numpy as np
 import binascii
