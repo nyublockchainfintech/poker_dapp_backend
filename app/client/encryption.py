@@ -22,11 +22,11 @@ def symencrypt(key: bytes, message: bytes) -> bytes:
     """
     user_key = hashlib.shake_128()
     user_key.update(key)
-    # TODO: Check if this is actually secure lol
     key = user_key.digest(len(message))
     return exor(message, key)
 
 
+# TODO: Move some of the following code to a test file
 if __name__ == "__main__":
     M = b"hello"
     key1 = b"bobpass"
