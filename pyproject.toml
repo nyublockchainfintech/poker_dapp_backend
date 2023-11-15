@@ -13,6 +13,7 @@ pokerlib = "^2.2.7"
 websockets = "^12.0"
 uvicorn = "^0.24.0.post1"
 cryptography = "^41.0.5"
+treys = "^0.1.8"
 
 
 [build-system]

@@ -1,24 +1,24 @@
 import random
 import json
-from pokerlib.enums import Rank, Suit
+from pokerlib.enums import Value, Suit
 
 
 class Card:
-    def __init__(self, rank: Rank, suit: Suit) -> None:
-        self.rank = rank
+    def __init__(self, value: Value, suit: Suit) -> None:
+        self.value = value
         self.suit = suit
 
     def serialize(self) -> dict:
         """
         Return a dictionary of the card object
         """
-        return {"rank": self.rank.value, "suit": self.suit.value}
+        return {"value": self.value.value, "suit": self.suit.value}
 
     def deserialize(self, data: dict) -> None:
         """
         Deserialize a card from a dictionary
         """
-        self.rank = Rank(data["rank"])
+        self.value = Value(data["value"])
         self.suit = Suit(data["suit"])
 
     def encrypt(self, key):
@@ -34,12 +34,12 @@ class Card:
         Returns:
             str: Binary string representation of the card
         """
-        rank = bin(self.rank.value)[2:].zfill(4)
+        value = bin(self.value.value)[2:].zfill(4)
         suit = bin(self.suit.value)[2:].zfill(2)
-        return rank + suit  # Length of 6
+        return value + suit  # Length of 6
 
     def __str__(self) -> str:
-        return self.rank.name + " of " + self.suit.name
+        return self.value.name + " of " + self.suit.name
 
 
 class Deck:
@@ -49,11 +49,11 @@ class Deck:
 
     def build(self) -> None:
         """
-        Build a deck of cards from Suit and Rank enums
+        Build a deck of cards from Suit and Value enums
         """
         for suit in Suit:
-            for rank in Rank:
-                self.cards.append(Card(rank, suit))
+            for value in Value:
+                self.cards.append(Card(value, suit))
 
     def encode(self) -> str:
         """
@@ -74,7 +74,7 @@ class Deck:
         self.cards = []
         for i in range(0, len(data), 6):
             card = Card(
-                Rank(int(data[i : i + 4], 2)), Suit(int(data[i + 4 : i + 6], 2))
+                Value(int(data[i : i + 4], 2)), Suit(int(data[i + 4 : i + 6], 2))
             )
             self.cards.append(card)
 
@@ -114,7 +114,7 @@ class Deck:
         """
         self.cards = []
         for card in data["cards"]:
-            new_card = Card(Rank(card["rank"]), Suit(card["suit"]))
+            new_card = Card(Value(card["value"]), Suit(card["suit"]))
             self.cards.append(new_card)
 
     def __str__(self) -> str:
