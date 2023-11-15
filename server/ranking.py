@@ -27,7 +27,7 @@ class Ranker:
             'HEART': 'h',
         }
 
-    def convert(self, card: cards.Card) -> str:
+    def _convert(self, card: cards.Card) -> str:
         """
         Convert a card from pokerlib format to treys format.
 
@@ -52,9 +52,9 @@ class Ranker:
             int: Rank of the hand
         """
         # convert the hand into treys card objects
-        hand = [treys.Card.new(self.convert(card)) for card in hand]
+        hand = [treys.Card.new(self._convert(card)) for card in hand]
         # convert the board from pokerlib to treys
-        board = [treys.Card.new(self.convert(card)) for card in board]
+        board = [treys.Card.new(self._convert(card)) for card in board]
         
         # return the rank
         return self.evaluator.evaluate(board, hand)
