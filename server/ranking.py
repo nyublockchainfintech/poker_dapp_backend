@@ -1,26 +1,11 @@
 import treys
 import cards
-import random
 
-deck = cards.Deck()
-
-board = []
-for _ in range(5):
-    board.append(random.choice(deck.cards))
-
-hand = []
-for _ in range(2):
-    hand.append(random.choice(deck.cards))
-
-print(f"Board: {board[0]}, {board[1]}, {board[2]}, {board[3]}, {board[4]}\n")
-print(f"Hand: {hand[0]}, {hand[1]}")
-STR_RANKS: str = '23456789TJQKA'
-STR_SUITS: str = 'shdc'
 class Ranker:
     def __init__(self):
         self.evaluator = treys.Evaluator()
         # dictionaries to convert from pokerlib to treys format
-        self.rankDict = {
+        self.rank_dict = {
             'TWO': '2',
             'THREE': '3',
             'FOUR': '4',
@@ -35,7 +20,7 @@ class Ranker:
             'KING': 'K',
             'ACE': 'A',
         }
-        self.suitDict = {
+        self.suit_dict = {
             'SPADE': 's',
             'CLUB': 'c',
             'DIAMOND': 'd',
@@ -53,11 +38,15 @@ class Ranker:
             str: Converted card
         """
         # NOTE: might have issue here since some pokerlib versions use value instead of rank
-        return self.rankDict[card.value.name] + self.suitDict[card.suit.name]
+        return self.rank_dict[card.value.name] + self.suit_dict[card.suit.name]
     
     def rank(self, hand: list[cards.Card], board: list[cards.Card]) -> int:
         """
         Rank the hand given the board. Takes in a list of pokerlib format cards.
+
+        Args:
+            hand (list[cards.Card]): Hand to rank
+            board (list[cards.Card]): Board to rank against
 
         Returns:
             int: Rank of the hand
