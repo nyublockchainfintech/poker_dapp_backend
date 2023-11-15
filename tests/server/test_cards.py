@@ -1,4 +1,4 @@
-from server.cards import Dealer, Player
+from app.server.dealer import Card, Dealer
 
 
 def test_dealer_build():

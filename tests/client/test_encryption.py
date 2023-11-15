@@ -1,4 +1,4 @@
-from server.encryption import symencrypt
+from app.client.encryption import symencrypt
 
 
 def test_symencrypt():
