@@ -59,7 +59,7 @@ class Ranker:
         # return the rank
         return self.evaluator.evaluate(board, hand)
     
-    def best_hand(self, hands: list[list[cards.Cards]], board: list[int]) -> int:
+    def best_hand(self, hands: list[list[cards.Card]], board: list[int]) -> int:
         """
         Find the best hand given a list of hands and a board. Takes in a list of pokerlib format cards.
         
