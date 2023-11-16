@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-# Add the parent directory to sys.path
+# Add the parent directory to sys.path to import modules from the parent directory
 parent_dir = str(Path(__file__).resolve().parent.parent)
 sys.path.append(parent_dir)
 
@@ -46,5 +46,29 @@ hand = [cards.Card(cards.Rank.ACE, cards.Suit.HEART), cards.Card(cards.Rank.ACE,
 rank = Ranker().rank(hand, four_of_a_kind)
 print(f"Four of a kind rank: {rank}")
 assert rank == 11, f"Four of a kind should be rank 3, got {rank}"
+
+# generate multiple hands and assert that the right hand is chosen as the best hand
+hand1 = [cards.Card(cards.Rank.ACE, cards.Suit.SPADE), cards.Card(cards.Rank.ACE, cards.Suit.CLUB)]
+hand2 = [cards.Card(cards.Rank.KING, cards.Suit.DIAMOND), cards.Card(cards.Rank.KING, cards.Suit.HEART)]
+hand3 = [cards.Card(cards.Rank.QUEEN, cards.Suit.DIAMOND), cards.Card(cards.Rank.QUEEN, cards.Suit.HEART)]
+hand4 = [cards.Card(cards.Rank.JACK, cards.Suit.DIAMOND), cards.Card(cards.Rank.JACK, cards.Suit.HEART)]
+# create board with 2 aces, a five, a six, and a eight
+board = [cards.Card(cards.Rank.ACE, cards.Suit.HEART), cards.Card(cards.Rank.ACE, cards.Suit.DIAMOND), cards.Card(cards.Rank.FIVE, cards.Suit.DIAMOND), cards.Card(cards.Rank.SIX, cards.Suit.HEART), cards.Card(cards.Rank.EIGHT, cards.Suit.CLUB)]
+hands = [hand1, hand2, hand3, hand4]
+best_hand = Ranker().best_hand(hands, board)
+print(f"Best hand: {best_hand}")
+assert best_hand == 0, f"Best hand should be hand1, got {best_hand}"
+
+# generate multiple hands and assert that the right hand is chosen as the best hand
+hand1 = [cards.Card(cards.Rank.ACE, cards.Suit.SPADE), cards.Card(cards.Rank.ACE, cards.Suit.CLUB)]
+hand2 = [cards.Card(cards.Rank.KING, cards.Suit.DIAMOND), cards.Card(cards.Rank.KING, cards.Suit.HEART)]
+hand3 = [cards.Card(cards.Rank.QUEEN, cards.Suit.DIAMOND), cards.Card(cards.Rank.QUEEN, cards.Suit.HEART)]
+hand4 = [cards.Card(cards.Rank.JACK, cards.Suit.DIAMOND), cards.Card(cards.Rank.JACK, cards.Suit.HEART)]
+# create board with two kings, a five, a six, and a eight
+board = [cards.Card(cards.Rank.KING, cards.Suit.HEART), cards.Card(cards.Rank.KING, cards.Suit.DIAMOND), cards.Card(cards.Rank.FIVE, cards.Suit.DIAMOND), cards.Card(cards.Rank.SIX, cards.Suit.HEART), cards.Card(cards.Rank.EIGHT, cards.Suit.CLUB)]
+hands = [hand1, hand2, hand3, hand4]
+best_hand = Ranker().best_hand(hands, board)
+print(f"Best hand: {best_hand}")
+assert best_hand == 1, f"Best hand should be hand2, got {best_hand}"
 
 print("All tests passed!")
