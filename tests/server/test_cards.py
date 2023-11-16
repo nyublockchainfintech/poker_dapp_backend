@@ -1,4 +1,4 @@
-from app.server.dealer import Card, Dealer
+from poker_dapp_backend.server.dealer import Card, Dealer
 
 
 def test_dealer_build():

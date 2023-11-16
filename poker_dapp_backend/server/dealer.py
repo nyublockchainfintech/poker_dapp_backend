@@ -1,7 +1,7 @@
 from typing import List
 import json
 from pokerlib.enums import Rank, Suit
-from app.enums import ShuffleStage, WebSocketStatus
+from poker_dapp_backend.enums import ShuffleStage, WebSocketStatus
 
 
 class Card:
