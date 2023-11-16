@@ -39,3 +39,5 @@ hand = [cards.Card(cards.Value.ACE, cards.Suit.HEART), cards.Card(cards.Value.AC
 rank = Ranker().rank(hand, four_of_a_kind)
 print(f"Four of a kind rank: {rank}")
 assert rank == 11, f"Four of a kind should be rank 3, got {rank}"
+
+print("All tests passed!")

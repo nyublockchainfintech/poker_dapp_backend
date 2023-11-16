@@ -38,7 +38,7 @@ class Ranker:
             str: Converted card
         """
         # NOTE: might have issue here since some pokerlib versions use value instead of rank
-        return self.rank_dict[card.value.name] + self.suit_dict[card.suit.name]
+        return self.rank_dict[card.rank.name] + self.suit_dict[card.suit.name]
     
     def rank(self, hand: list[cards.Card], board: list[cards.Card]) -> int:
         """
