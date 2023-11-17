@@ -1,5 +1,5 @@
 import treys
-import cards
+from dealer import Card
 
 class Ranker:
     def __init__(self):
@@ -27,7 +27,7 @@ class Ranker:
             'HEART': 'h',
         }
 
-    def _convert(self, card: cards.Card) -> str:
+    def _convert(self, card: Card) -> str:
         """
         Convert a card from pokerlib format to treys format.
 
@@ -37,10 +37,9 @@ class Ranker:
         Returns:
             str: Converted card
         """
-        # NOTE: might have issue here since some pokerlib versions use value instead of rank
         return self.rank_dict[card.rank.name] + self.suit_dict[card.suit.name]
     
-    def rank(self, hand: list[cards.Card], board: list[cards.Card]) -> int:
+    def rank(self, hand: list[Card], board: list[Card]) -> int:
         """
         Rank the hand given the board. Takes in a list of pokerlib format cards.
 
@@ -59,7 +58,7 @@ class Ranker:
         # return the rank
         return self.evaluator.evaluate(board, hand)
     
-    def best_hand(self, hands: list[list[cards.Card]], board: list[int]) -> int:
+    def best_hand(self, hands: list[list[Card]], board: list[int]) -> int:
         """
         Find the best hand given a list of hands and a board. Takes in a list of pokerlib format cards.
         
