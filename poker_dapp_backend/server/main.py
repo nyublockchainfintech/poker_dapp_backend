@@ -1,3 +1,4 @@
+# server.py
 from fastapi import FastAPI, WebSocket
 from starlette.websockets import WebSocketDisconnect
 
