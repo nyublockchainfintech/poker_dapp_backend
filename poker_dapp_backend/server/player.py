@@ -1,3 +1,4 @@
+import json
 from dealer import Card
 from enum import Enum
 
@@ -16,7 +17,7 @@ class Status(Enum):
 
 
 class Player:
-    def __init__(self, name, balance):
+    def __init__(self, name=None, balance=0):
         self.name = name
         self.balance = balance
         self.hand = []
@@ -80,3 +81,25 @@ class Player:
         Checks the player's hand
         """
         pass
+
+    def serialize(self) -> json:
+        """
+        Serializes the player's data
+
+        Returns:
+            JSON: Serialized player data
+        """
+        to_json = {
+            "name": self.name,
+            "balance": self.balance,
+            "hand": [card.encode() for card in self.hand],
+            "current_blind": self.current_blind.name if self.current_blind else None,
+            "status": self.status.name if self.status else None,
+        }
+        # jsonify the data
+        return json.dumps(to_json)
+    
+    def __str__(self) -> str:
+        return f"{self.name} with ${self.balance} and hand {self.hand} is {self.status.name} and has {self.current_blind.name}"
+
+
