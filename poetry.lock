@@ -479,6 +479,17 @@ anyio = ">=3.4.0,<5"
 full = ["httpx (>=0.22.0)", "itsdangerous", "jinja2", "python-multipart", "pyyaml"]
 
 [[package]]
+name = "treys"
+version = "0.1.8"
+description = "treys is a pure Python poker hand evaluation library"
+optional = false
+python-versions = "*"
+files = [
+    {file = "treys-0.1.8-py3-none-any.whl", hash = "sha256:9ba3460ff2ed597510fb535af6280f115254b0b70699ea362f8f1ee067378063"},
+    {file = "treys-0.1.8.tar.gz", hash = "sha256:a486a42b899e91985b4da4fdac9a30e638275648977104487acb90a2dd7cd73b"},
+]
+
+[[package]]
 name = "typing-extensions"
 version = "4.8.0"
 description = "Backported and Experimental Type Hints for Python 3.8+"
@@ -573,4 +584,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.13"
-content-hash = "8359fe34c9469dcb18810aadc7493ee6b41d60fc7bee3b76b9603d61d8242f8d"
+content-hash = "8936544b49d8ff3cf2b25dab49aaeadc9c7841009dae3c8147ad99d9c7982e43"
