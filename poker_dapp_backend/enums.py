@@ -1,10 +1,17 @@
 from enum import Enum
 
 
-class ShuffleStage(Enum):
-    START = 0
-    SHUFFLE = 1
-    DECRYPT = 2
+class DealerResponse(str, Enum):
+    WAIT = "waiting"
+    SHUFFLE = "shuffle"
+    DECRYPT = "decrypt"
+    DEAL = "deal"
+
+
+class ClientResponse(str, Enum):
+    JOIN = "join"
+    SHUFFLED = "shuffled"
+    DECRYPTED = "decrypted"
 
 
 class WebSocketStatus(Enum):
