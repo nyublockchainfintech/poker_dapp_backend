@@ -1,4 +1,4 @@
-from server.encryption import symencrypt
+from poker_dapp_backend.client.encryption import symencrypt
 
 
 def test_symencrypt():
