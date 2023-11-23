@@ -1,3 +1,4 @@
+from asyncio import wait
 from typing import List
 import json
 from pokerlib.enums import Rank, Suit
@@ -36,7 +37,7 @@ class Dealer:
         self.cards = []
         self.shuffle_players = set()
         self.connected_players = connected_players
-        self.messsage = {}
+        self.message = {}
         self.initialize_deck()
 
     def initialize_deck(self) -> None:
@@ -67,7 +68,7 @@ class Dealer:
         """
         Build a response message
         """
-        self.messsage = {
+        self.message = {
             "command": command,
             "content": content,
             "message": message,
@@ -88,7 +89,10 @@ class Dealer:
         if len(self.connected_players) >= self.min_players:
             self.shuffle_players = set(self.connected_players)
             await self.send_response(
-                DealerResponse.SHUFFLE, self.cards, "Start shuffling the deck"
+                DealerResponse.SHUFFLE,
+                self.cards,
+                "Start shuffling the deck",
+                broadcast=True,
             )
         else:
             await self.send_response(
@@ -166,9 +170,8 @@ class Dealer:
         """
         Broadcast a message to all connected clients.
         """
-        if message is None:
+        if not message:
             message = self.message
-
         disconnected_clients = set()
         for client in self.connected_players:
             try:
@@ -177,9 +180,3 @@ class Dealer:
                 disconnected_clients.add(client)
         for client in disconnected_clients:
             self.connected_players.remove(client)
-
-    def serialize(self) -> dict:
-        """
-        Serialize the deck of cards to a JSON object
-        """
-        return self.messsage
