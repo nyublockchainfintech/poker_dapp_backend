@@ -14,15 +14,21 @@ class Player:
         self.shuffle_round = False
         self.decrypt_round = False
 
-    def shuffle(self, seed: int) -> None:
+    # TODO: Replace this with a secure random number generator
+    def shuffle_encrypt(self, seed: int) -> None:
         """
-        Shuffle the deck of cards with a seed
+        Encrypt the entire deck of cards and shuffle them
 
         Args:
             seed (int): Seed for the random number generator
         """
+        # Encrypt Cards
+        key = self.stage_1_key.encode()
+        self.ouput = [symencrypt(key, card.encode()).decode() for card in self.input]
+
+        # Shuffle with seed
         random.seed(seed)
-        random.shuffle(self.encrypted_cards)
+        random.shuffle(self.output)
 
     def encrypt(self, key: bytes):
         """
