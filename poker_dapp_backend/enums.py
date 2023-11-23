@@ -6,6 +6,7 @@ class DealerResponse(str, Enum):
     SHUFFLE = "shuffle"
     DECRYPT = "decrypt"
     DEAL = "deal"
+    KEYS = "keys"
 
 
 class ClientResponse(str, Enum):

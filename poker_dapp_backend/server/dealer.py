@@ -47,29 +47,23 @@ class Dealer:
             for rank in Rank:
                 self.cards.append(Card(rank, suit).encode())
 
-    def start_shuffle(self):
-        """
-        Start the shuffle by sending the deck of cards to a random player
-        """
-        self.shuffle_players = set(self.connected_players)
-        self.message = {
-            "command": DealerResponse.SHUFFLE,
-            "content": self.cards,
-            "message": "Start shuffling",
-        }
-
-    def decrypt(self, data: dict, start=False):
+    def decrypt(self, data: dict):
         """
         Start the decrypt process by sending the deck of cards to a random player
         """
-        if start:
-            self.shuffle_players = set(self.connected_players)
         encrypted_cards = data["content"]
         self.message = {
             "command": DealerResponse.DECRYPT,
             "content": encrypted_cards,
             "message": "Decrypt and reencrypt the deck",
         }
+
+    def start_decrypt(self, data: dict):
+        """
+        Start the decrypt process by sending the deck of cards to a random player
+        """
+        self.shuffle_players = set(self.connected_players)
+        self.decrypt(data)
 
     def waiting(self):
         """
@@ -78,6 +72,17 @@ class Dealer:
         self.message = {
             "command": DealerResponse.WAIT,
             "message": "Waiting for more players to join",
+        }
+
+    # TODO: Figure out a way to collect keys for the right cards
+    def collect_keys(self):
+        """
+        Collect the keys from all players
+        """
+        self.message = {
+            "command": DealerResponse.KEYS,
+            # "content": encrypted_cards, # index of the card to decrypt
+            "message": "Collect the keys from all players",
         }
 
     def deal(self, data: dict):
@@ -89,6 +94,17 @@ class Dealer:
             "command": DealerResponse.DEAL,
             "content": encrypted_cards,
             "message": "Deal the cards",
+        }
+
+    def start_shuffle(self):
+        """
+        Start the shuffle by sending the deck of cards to a random player
+        """
+        self.shuffle_players = set(self.connected_players)
+        self.message = {
+            "command": DealerResponse.SHUFFLE,
+            "content": self.cards,
+            "message": "Start shuffling",
         }
 
     def shuffle(self, data: dict):
@@ -114,21 +130,21 @@ class Dealer:
             if command == ClientResponse.JOIN:
                 if len(self.connected_players) >= self.min_players:
                     self.start_shuffle()
-                    await self.send_deck()
-                else:
+                    await self.send_deck_to_random_player()
+                else:  # Not enough players
                     self.waiting()
                     await self.broadcast()
             elif command == ClientResponse.SHUFFLED:
                 if len(self.shuffle_players) > 0:
                     self.shuffle(message)
-                    await self.send_deck()
-                else:
-                    self.decrypt(message)
-                    await self.send_deck()
+                    await self.send_deck_to_random_player()
+                else:  # All players have shuffled
+                    self.start_decrypt(message)
+                    await self.send_deck_to_random_player()
             elif command == ClientResponse.DECRYPTED:
                 if len(self.shuffle_players) > 0:
                     self.decrypt(message)
-                    await self.send_deck()
+                    await self.send_deck_to_random_player()
                 else:
                     self.deal(message)
                     await self.broadcast()
@@ -147,12 +163,13 @@ class Dealer:
                 }
             )
 
-    async def send_deck(self, message: dict | None = None):
+    async def send_deck_to_random_player(self, message: dict | None = None):
         """
         Send a message to a random player
         """
         if message is None:
             message = self.message
+        # TODO: Handle error when the player is disconnected
         await self.shuffle_players.pop().send_json(message)
 
     async def broadcast(self, message: dict | None = None):

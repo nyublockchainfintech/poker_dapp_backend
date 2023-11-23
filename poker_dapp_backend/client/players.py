@@ -2,7 +2,7 @@ from typing import List
 import random
 import json
 from .encryption import symencrypt
-from app.enums import ShuffleStage, WebSocketStatus
+from poker_dapp_backend.enums import ClientResponse, WebSocketStatus
 
 
 class Player:

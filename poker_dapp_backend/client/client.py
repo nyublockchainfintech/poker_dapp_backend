@@ -10,17 +10,18 @@ async def connect():
         # Run an infinite loop to stay connected
         while True:
             # Listen for user input
-            message = input("Enter a message (type 'disconnect' to exit): ")
-            if message == "disconnect":
+            message = input("Enter a message (y/n): ")
+            if message == "y":
                 # Send a disconnect message to the server (optional)
                 await websocket.send(json.dumps({"command": "disconnect"}))
                 break
             else:
-                # Send the message to the server
+                # TODO: Modify this to send correct message to the server
                 await websocket.send(json.dumps({"message": message}))
 
             # Wait for server response
             response = await websocket.recv()
+            # TODO: Process the response from the server
             print("Response from server:", response)
 
 
