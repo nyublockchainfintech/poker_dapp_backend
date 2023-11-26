@@ -66,7 +66,7 @@ def test_encrypt_deck(two_player_game):
 
 
 def test_decrypt_deck(two_player_game):
-    ws1, ws2, _, p2_msg1 = two_player_game
+    ws1, _, _, p2_msg1 = two_player_game
 
     p1 = Player(ws1)
     p1.deserialize(p2_msg1)
