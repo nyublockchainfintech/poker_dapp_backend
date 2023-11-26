@@ -74,12 +74,29 @@ class Player(PlayerBase):
         random.seed(self.shuffle_seed)
         random.shuffle(self.cards)
 
-        Args:
-            seed (int): Seed for the random number generator
+    def bytes_to_string_list(self) -> List[str]:
         """
-        # Encrypt Cards
-        key = self.stage_1_key.encode()
-        self.ouput = [symencrypt(key, card.encode()).decode() for card in self.input]
+        Convert deck of cards from List[bytes] to List[str]
+
+        Returns:
+            List[str]: List of cards converted to string
+        """
+        return [base64.b64encode(card).decode("utf-8") for card in self.cards]
+
+    def string_to_bytes_list(self, cards: List[str]) -> List[bytes]:
+        """
+        Convert deck of cards from List[str] to List[bytes]
+
+        Args:
+            cards (List[str]): List of cards to convert
+
+        Returns:
+            List[bytes]: List of cards converted to bytes
+        """
+        if set(cards) == set(self.init_deck()):
+            return [card.encode("utf-8") for card in cards]
+        else:
+            return [base64.b64decode(card) for card in cards]
 
         # Shuffle with seed
         random.seed(self.shuffle_seed)
