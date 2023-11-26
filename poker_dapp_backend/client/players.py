@@ -58,13 +58,13 @@ class PlayerBase:
 
 
 class Player(PlayerBase):
-    def __init__(self, websocket_server: WebSocketClientProtocol) -> None:
+    def __init__(self, websocket_server) -> None:
         self.websocket = websocket_server
-        self.input = []
-        self.output = []
-        self.shuffle_seed = self.seed_gen()
-        self.stage_1_key = self.keygen1()
-        self.stage_2_keys = self.keygen2()
+        self.command: ClientResponse | DealerResponse = ClientResponse.DOING_NOTHING
+        self.cards: List[bytes] = []
+        self.shuffle_seed = self.seed_gen(size=1000000)
+        self.identical_keys = [self.keygen1(length=256)] * 52
+        self.unique_keys = self.keygen2(length=256)
 
     def shuffle_deck(self):
         """
@@ -98,9 +98,68 @@ class Player(PlayerBase):
         else:
             return [base64.b64decode(card) for card in cards]
 
-        # Shuffle with seed
-        random.seed(self.shuffle_seed)
-        random.shuffle(self.output)
+    def serialize(self) -> Dict:
+        """
+        Serialize the entire deck of cards
+
+        Args:
+            command (ClientResponse): Command to send to the server
+
+        Returns:
+            Dict: Serialized deck of cards
+        """
+        return {
+            "command": self.command,
+            "content": self.bytes_to_string_list(),
+        }
+
+    def deserialize(self, data: Dict):
+        """
+        Deserialize the server response
+
+        Args:
+            data (Dict): Server response
+        """
+        try:
+            self.command = data["command"]
+            self.cards = self.string_to_bytes_list(data["content"])
+        except KeyError as e:
+            raise ValueError(f"Invalid data format: {e}")
+        return self
+
+    def encrypt_deck(self, cards=None, individually=False, keys=None) -> List[bytes]:
+        """
+        Encrypt the entire deck of cards with player key(s)
+
+        Args:
+            cards (List[bytes]): List of cards to encrypt
+            individually (bool): Encrypt each card with a different key
+            keys (List[str]): List of keys to use for encryption
+
+        Returns:
+            List[str]: List of encrypted cards
+        """
+        if not cards:
+            cards = self.cards
+        if not keys:
+            keys = self.unique_keys if individually else self.identical_keys
+        self.cards = [symencrypt(k.encode(), c) for k, c in zip(keys, cards)]
+        return self.cards
+
+    def decrypt_deck(self, cards=None, individually=False, keys=None) -> List[bytes]:
+        """
+        Decrypt the entire deck of cards with player key(s)
+
+        Args:
+            cards (List[bytes]): List of cards to decrypt
+            individually (bool): Decrypt each card with a different key
+            keys (List[str]): List of keys to use for decryption
+
+        Returns:
+            List[str]: List of decrypted cards
+        """
+        # NOTE: Symmetric encryption is reversible
+        return self.encrypt_deck(individually=individually, keys=keys)
 
     def encrypt_decrypt(self):
         """
