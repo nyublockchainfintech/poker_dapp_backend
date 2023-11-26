@@ -66,9 +66,13 @@ class Player(PlayerBase):
         self.stage_1_key = self.keygen1()
         self.stage_2_keys = self.keygen2()
 
-    def shuffle_encrypt(self) -> None:
+    def shuffle_deck(self):
         """
-        Encrypt the entire deck of cards and shuffle them
+        Shuffle the entire deck of cards
+        """
+        # Shuffle with seed
+        random.seed(self.shuffle_seed)
+        random.shuffle(self.cards)
 
         Args:
             seed (int): Seed for the random number generator
