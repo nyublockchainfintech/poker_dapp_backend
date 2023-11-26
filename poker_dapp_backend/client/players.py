@@ -1,14 +1,17 @@
 import secrets
-from typing import List
+import base64
 import random
-import json
+from typing import Dict, List
 
-from websockets import Data, WebSocketClientProtocol
+from poker_dapp_backend.base import Cards
 from .encryption import symencrypt
-from poker_dapp_backend.enums import ClientResponse, WebSocketStatus, DealerResponse
+from poker_dapp_backend.enums import (
+    ClientResponse,
+    DealerResponse,
+)
 
 
-class PlayerBase:
+class PlayerBase(Cards):
     def seed_gen(self, size=1000000) -> int:
         """
         Generate a random seed of the given size
@@ -161,21 +164,7 @@ class Player(PlayerBase):
         # NOTE: Symmetric encryption is reversible
         return self.encrypt_deck(individually=individually, keys=keys)
 
-    def encrypt_decrypt(self):
-        """
-        Decrypt the entire deck of cards with the given key & encrypt them again
-        with the list of keys
-        """
-        # Decrypt Cards
-        key = self.stage_1_key.encode()
-        self.output = [symencrypt(key, card.encode()).decode() for card in self.input]
-
-        # Encrypt with keys
-        self.output = [
-            symencrypt(key.encode(), card.encode()).decode()
-            for key, card in zip(self.stage_2_keys, self.output)
-        ]
-
+    # FIXME: Currently broken
     async def reply(self, message: dict):
         """
         Reply to the server with the correct response
@@ -186,20 +175,14 @@ class Player(PlayerBase):
         # string to json
         try:
             command = message["command"]
-            self.input = message["content"]
-            print(command)
-            print(self.input)
+            self.cards = message["content"]
             if command == DealerResponse.SHUFFLE:
-                self.shuffle_encrypt()
-                await self.send_to_server(ClientResponse.SHUFFLED)
+                pass
             elif command == DealerResponse.DECRYPT:
-                self.encrypt_decrypt()
-                await self.send_to_server(ClientResponse.DECRYPTED)
+                pass
             elif command == DealerResponse.DEAL:
-                # Implement deal logic if required
                 pass
             elif command == DealerResponse.KEYS:
-                # Implement keys handling logic if required
                 pass
             else:
                 # Handle unknown or unsupported commands
@@ -208,15 +191,15 @@ class Player(PlayerBase):
             # TODO: Replace this with error handler
             raise KeyError("Invalid data format")
 
-    async def send_to_server(self, response_type: ClientResponse):
-        """
-        Send a message to the server with the given response type
-        """
-        message = json.dumps(
-            {
-                "status": WebSocketStatus.SUCCESS.value,
-                "response": response_type.value,
-                "content": self.output
-            }
-        )
-        await self.websocket.send(message)
+    # async def send_to_server(self, response_type: ClientResponse):
+    #     """
+    #     Send a message to the server with the given response type
+    #     """
+    #     message = json.dumps(
+    #         {
+    #             "status": WebSocketStatus.SUCCESS.value,
+    #             "command": response_type.value,
+    #             "content": self.output,
+    #         }
+    #     )
+    #     await self.websocket.send(message)

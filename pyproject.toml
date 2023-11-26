@@ -16,6 +16,7 @@ fastapi = "^0.104.1"
 cryptography = "^41.0.5"
 treys = "^0.1.8"
 httpx = "^0.25.1"
+pytest-asyncio = "^0.21.1"
 
 
 [build-system]

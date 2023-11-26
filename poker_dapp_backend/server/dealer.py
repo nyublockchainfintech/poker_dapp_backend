@@ -1,32 +1,8 @@
-from asyncio import wait
-from typing import List
-import json
-from pokerlib.enums import Rank, Suit
+from poker_dapp_backend.base import Cards
 from poker_dapp_backend.enums import DealerResponse, ClientResponse, WebSocketStatus
 
 
-class Card:
-    RANKS = ("1", "2", "3", "4", "5", "6", "7", "8", "9", "J", "Q", "K", "A")
-    SUITS = ("s", "c", "d", "h")
-
-    def __init__(self, rank: Rank, suit: Suit) -> None:
-        self.rank = rank
-        self.suit = suit
-
-    def encode(self) -> str:
-        """
-        Convert the card to a binary string
-
-        Returns:
-            str: Encoded card
-        """
-        return self.RANKS[self.rank.value] + self.SUITS[self.suit.value]
-
-    def __str__(self) -> str:
-        return self.rank.name + " of " + self.suit.name
-
-
-class Dealer:
+class Dealer(Cards):
     """
     Dealer class that handles the deck of cards and shuffling
     """
@@ -34,19 +10,10 @@ class Dealer:
     min_players = 2
 
     def __init__(self, connected_players: set) -> None:
-        self.cards = []
+        self.cards = self.init_deck()
         self.shuffle_players = set()
         self.connected_players = connected_players
         self.message = {}
-        self.initialize_deck()
-
-    def initialize_deck(self) -> None:
-        """
-        Build a deck of Card objects
-        """
-        for suit in Suit:
-            for rank in Rank:
-                self.cards.append(Card(rank, suit).encode())
 
     # TODO: Figure out a way to collect keys for the right cards
     def collect_keys(self):
@@ -92,7 +59,7 @@ class Dealer:
                 DealerResponse.SHUFFLE,
                 self.cards,
                 "Start shuffling the deck",
-                broadcast=True,
+                broadcast=True, # TODO: True for now, but false in a real game
             )
         else:
             await self.send_response(

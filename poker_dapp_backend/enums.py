@@ -10,6 +10,7 @@ class DealerResponse(str, Enum):
 
 
 class ClientResponse(str, Enum):
+    DOING_NOTHING = "doing_nothing"
     JOIN = "join"
     SHUFFLED = "shuffled"
     DECRYPTED = "decrypted"

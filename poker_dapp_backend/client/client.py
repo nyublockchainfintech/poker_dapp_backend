@@ -6,6 +6,7 @@ from poker_dapp_backend.client.players import Player
 import json
 
 
+# TODO: Change this to use pytest test client
 async def connect():
     uri = "ws://localhost:8000/ws"
     try:
@@ -13,11 +14,6 @@ async def connect():
             player = Player(websocket)
             response = None
             while True:
-                # message = input("Enter a message (y/n): ")
-                # if message == "n":
-                #     await websocket.send(json.dumps({"command": "disconnect"}))
-                #     break
-                # elif message == "y":
                 if response is not None:
                     try:
                         response = json.loads(response)
@@ -27,10 +23,6 @@ async def connect():
                         continue
                 else:
                     await websocket.send(json.dumps({"command": "join"}))
-                # else:
-                #     print("Invalid input")
-                #     continue
-
                 response = await websocket.recv()
                 print("Response from server:", response)
     except websockets.ConnectionClosedError as e:

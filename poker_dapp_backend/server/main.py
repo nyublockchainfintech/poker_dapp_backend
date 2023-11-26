@@ -8,6 +8,7 @@ app = FastAPI()
 connected_players = set()
 
 
+# TODO: Add join confirmation when a player joins the game
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
@@ -21,4 +22,4 @@ async def websocket_endpoint(websocket: WebSocket):
             await dealer.reply(data)
     except WebSocketDisconnect:
         connected_players.remove(websocket)
-        print("A client disconnected")
+        print(f"Client {websocket} disconnected")

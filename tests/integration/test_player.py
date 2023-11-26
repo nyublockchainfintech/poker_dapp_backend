@@ -1,9 +1,8 @@
 from poker_dapp_backend.base import Cards
 from poker_dapp_backend.client.players import Player
 
+
 # TODO: Write tests for string_to_bytes_list and bytes_to_string_list
-
-
 def test_join(two_player_game):
     """
     Test server returns the correct response when two players join
@@ -64,6 +63,7 @@ def test_encrypt_deck(two_player_game):
     assert len(p1_encrypted_cards) == len(p2_encrypted_cards)
     assert p1_encrypted_cards != p2_encrypted_cards
     assert all(isinstance(card, bytes) for card in p1_encrypted_cards)
+
 
 def test_decrypt_deck(two_player_game):
     ws1, ws2, _, p2_msg1 = two_player_game
