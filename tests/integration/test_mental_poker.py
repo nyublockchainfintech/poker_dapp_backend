@@ -16,27 +16,39 @@ def test_shuffle_encrypt(two_player_game):
     p2 = Player(ws2)
     p1 = Player(ws1)
 
-    # player 2 encrypts, shuffles, & sends deck to player 1
+    # SHUFFLE & ENCRYPT
+
     p2.deserialize(p2_msg1)
     initial_cards = p2.cards
     p2.encrypt_deck()
     p2.shuffle_deck()
     msg = p2.serialize()
 
-    # player 1 encrypts, shuffles, & sends deck to player 2
     p1.deserialize(msg)
     p1.encrypt_deck()
     p1.shuffle_deck()
     msg = p1.serialize()
 
-    # player 2 decrypts, shuffles, & sends deck to player 1
-    p2.deserialize(p2_msg1)
+    # DECRYPT & ENCRYPT
+
+    p2.deserialize(msg)
     p2.decrypt_deck()
+    p2.encrypt_deck(individually=True)
     msg = p2.serialize()
 
-    # # player 1 decrypts & shuffles deck
     p1.deserialize(msg)
     p1.decrypt_deck()
+    p1.encrypt_deck(individually=True)
+    msg = p1.serialize()
 
-    # NOTE: The decrypted deck should be the same as the initial deck
-    assert p1.cards == initial_cards
+    # DEAL CARDS
+    p2.deserialize(msg)
+    p2.decrypt_deck(individually=True)
+    msg = p2.serialize()
+
+    p1.deserialize(msg)
+    p1.decrypt_deck(individually=True)
+    print(p1.cards)
+    msg = p1.serialize()
+
+    assert set(p1.cards) == set(initial_cards)
