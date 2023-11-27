@@ -1,5 +1,5 @@
 import json
-from dealer import Card
+from poker_dapp_backend.server.dealer import Card
 from enum import Enum
 
 
@@ -34,6 +34,24 @@ class Player:
         assert len(self.hand) < 2, "Player cannot have more than 2 cards"
         self.hand.append(card)
 
+    def hand_to_string(self) -> str:
+        """
+        Converts the player's hand to a string
+        
+        Returns:
+            str: String representation of the player's hand
+        """
+        # if the player has no cards, return an empty string
+        if len(self.hand) == 0:
+            return ""
+        # if the player has 1 card, return the card
+        elif len(self.hand) == 1:
+            return self.hand[0].encode()
+        # if the player has 2 cards, return the cards separated by a space
+        else:
+            return self.hand[0].encode() + " " + self.hand[1].encode()
+        
+
     def set_blind(self, blind: Blind) -> None:
         """
         Sets the player's current blind
@@ -52,22 +70,19 @@ class Player:
         """
         self.status = status
 
-    def bet(self, amount: int) -> bool:
+    def bet(self, amount: int) -> None:
         """
         Bets the given amount from the player's balance
 
         Args:
             amount (int): Amount to bet
-
-        Returns:
-            bool: True if bet was successful, False if not
         """
-        if self.balance >= amount:
-            self.balance -= amount
-            if self.balance == 0:
-                self.set_status(Status.ALL_IN)
-            return True
-        return False
+        assert amount > 0, "Amount must be greater than 0"
+        assert self.balance >= amount, "Player does not have enough money to bet that amount"
+        self.balance -= amount
+        if self.balance == 0:
+            self.set_status(Status.ALL_IN)
+            
     
     def fold(self) -> None:
         """
@@ -82,12 +97,12 @@ class Player:
         """
         pass
 
-    def serialize(self) -> json:
+    def serialize(self) -> str:
         """
         Serializes the player's data
 
         Returns:
-            JSON: Serialized player data
+            str: Serialized player data in JSON format
         """
         to_json = {
             "name": self.name,

@@ -1,5 +1,5 @@
 import treys
-from dealer import Card
+from poker_dapp_backend.server.dealer import Card
 
 class Ranker:
     def __init__(self):
