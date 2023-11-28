@@ -45,6 +45,12 @@ Project Dependencies
 
 ## Useful Commands for Development
 
+- Build Docker Image
+
+  ```sh
+  docker build .
+  ```
+
 - Setup Python virtual environment with Poetry
 
   ```sh
