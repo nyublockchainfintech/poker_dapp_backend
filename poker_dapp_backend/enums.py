@@ -19,3 +19,9 @@ class ClientResponse(str, Enum):
 class WebSocketStatus(Enum):
     SUCCESS = 0
     ERROR = 1
+
+class BettingRound(Enum):
+    PRE_FLOP = 1
+    FLOP = 2
+    TURN = 3
+    RIVER = 4
