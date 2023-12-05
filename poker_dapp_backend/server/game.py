@@ -4,16 +4,6 @@ from poker_dapp_backend.server.ranking import Ranker
 from poker_dapp_backend.enums import BettingRound
 from random import shuffle as default_shuffle
 
-
-"""
-Game Attr:
-- Players: list[Player]
-- Blinds: tuple(small: int, big: int)
-- Current Pot: int
-- Current Betting Round: enum.Betting_Round
-
-"""
-
 class Game:
 
     def __init__(self, buy_in: int, blinds: tuple[int, int], players: list[Player] = None, max_players: int = 8):
@@ -32,12 +22,13 @@ class Game:
         self.ranker = Ranker()
         self.games_played = 0
 
-    def add_player(self, name: str, balance: int) -> bool:
+    def add_player(self, name: str, starting_balance: int) -> bool:
         """
         Adds a player to the game. 
 
         args:
-            Player: player to add to game
+            name (str): name of player to add to game
+            balance (int): starting balance of player
 
         returns:
             bool: True if added
@@ -47,7 +38,7 @@ class Game:
         if len(self.players) >= self.max_players:
             return False
         # otherwise, create player with params and return True
-        player = Player(name, balance)
+        player = Player(name, starting_balance)
         self.players.append(player)
         return True
     
@@ -82,7 +73,68 @@ class Game:
 
         # set betting round to pre_flop
         self.current_round = BettingRound.PRE_FLOP
-        
-        
 
+    def increment_round(self) -> None:
+        """
+        Increments to next betting round
+        """
+        if self.current_round == BettingRound.RIVER:
+            raise ValueError("Can't go to next round, it is the river")
+        self.current_round.next_round()
+        
+    def player_bet(self, player_index: int, bet_amount: int) -> None:
+        """
+        Adjusts game state when a player submits a bet
+
+        Args:
+            player_index (int): index of player that is making a bet
+            bet_amount (int): amount that player is betting
+        """
+        assert player_index == self.active_player, "illegal bet argument, bet not from active player"
+        self.players[player_index].bet(bet_amount)
+        self.active_player = (self.active_player + 1) % len(self.players)
+
+    def player_check(self, player_index: int) -> None:
+        """
+        Adjusts game state when a player checks
+
+        Args:
+            player_index (int): index of player that is checking
+        """
+        assert player_index == self.active_player, "illegal check argument, check not from active player"
+        self.players[player_index].check()
+        self.active_player = (self.active_player + 1) % len(self.players)
+    
+    def player_fold(self, player_index: int) -> None:
+        """
+        Adjusts game state when a player folds
+
+        Args:
+            player_index (int): index of player that is folding
+        """
+        assert player_index == self.active_player, "illegal fold argument, check not from active player"
+        self.players[player_index].fold()
+        self.active_player = (self.active_player + 1) % len(self.players)
+
+    def player_sitting_out(self, player_index: int) -> None:
+        """
+        Adjusts game state when a player sits out
+
+        Args:
+            player_index (int): index of player that is sitting out
+        """
+        #TODO
+        return 0
+    
+    def player_returns(self, player_index: int) -> None:
+        """
+        Adjusts game state when a player rejoins after sitting out
+
+        Args:
+            player_index (int): index of player that is rejoining
+        """
+        #TODO
+        return 0
+    
+    
 
