@@ -4,30 +4,32 @@ from poker_dapp_backend.server.player import Player, Status
 from poker_dapp_backend.base import Card
 from pokerlib.enums import Rank, Suit
 
+
 def test_add_player():
     game = Game(1000, (10, 20))
-    assert game.add_player("Player1", 1000) == True
-    assert game.add_player("Player2", 1000) == True
-    assert game.add_player("Player3", 1000) == True
-    assert game.add_player("Player4", 1000) == True
-    assert game.add_player("Player5", 1000) == True
-    assert game.add_player("Player6", 1000) == True
-    assert game.add_player("Player7", 1000) == True
-    assert game.add_player("Player8", 1000) == True
-    assert game.add_player("Player9", 1000) == False
+    assert game.add_player("Player1", 1000) is True
+    assert game.add_player("Player2", 1000) is True
+    assert game.add_player("Player3", 1000) is True
+    assert game.add_player("Player4", 1000) is True
+    assert game.add_player("Player5", 1000) is True
+    assert game.add_player("Player6", 1000) is True
+    assert game.add_player("Player7", 1000) is True
+    assert game.add_player("Player8", 1000) is True
+    assert game.add_player("Player9", 1000) is False
+
 
 def test_start_game():
     game = Game(1000, (10, 20))
-    assert game.add_player("Player1", 1000) == True
-    assert game.add_player("Player2", 1000) == True
-    assert game.add_player("Player3", 1000) == True
-    assert game.add_player("Player4", 1000) == True
-    assert game.add_player("Player5", 1000) == True
-    assert game.add_player("Player6", 1000) == True
-    assert game.add_player("Player7", 1000) == True
-    assert game.add_player("Player8", 1000) == True
-    assert game.add_player("Player9", 1000) == False
-    assert game.start_game() == True
+    assert game.add_player("Player1", 1000) is True
+    assert game.add_player("Player2", 1000) is True
+    assert game.add_player("Player3", 1000) is True
+    assert game.add_player("Player4", 1000) is True
+    assert game.add_player("Player5", 1000) is True
+    assert game.add_player("Player6", 1000) is True
+    assert game.add_player("Player7", 1000) is True
+    assert game.add_player("Player8", 1000) is True
+    assert game.add_player("Player9", 1000) is False
+    assert game.start_game() is True
     assert game.current_round == BettingRound.PRE_FLOP
     assert game.active_player == 3
     assert game.current_pot == 30
@@ -39,6 +41,7 @@ def test_start_game():
     assert game.players[5].balance == 1000
     assert game.players[6].balance == 1000
     assert game.players[7].balance == 1000
+
 
 def test_increment_round():
     game = Game(1000, (10, 20))
@@ -67,6 +70,7 @@ def test_increment_round():
         assert False
     except ValueError:
         assert True
+
 
 def test_showdown():
     game = Game(1000, (10, 20))
@@ -105,7 +109,13 @@ def test_showdown():
     game.players[6].hand = [Card(Rank.EIGHT, Suit.SPADE), Card(Rank.EIGHT, Suit.HEART)]
     game.players[7].hand = [Card(Rank.SEVEN, Suit.SPADE), Card(Rank.SEVEN, Suit.HEART)]
     # set the community cards
-    game.community_cards = [Card(Rank.ACE, Suit.CLUB), Card(Rank.KING, Suit.CLUB), Card(Rank.QUEEN, Suit.CLUB), Card(Rank.JACK, Suit.CLUB), Card(Rank.TEN, Suit.CLUB)]
+    game.community_cards = [
+        Card(Rank.ACE, Suit.CLUB),
+        Card(Rank.KING, Suit.CLUB),
+        Card(Rank.QUEEN, Suit.CLUB),
+        Card(Rank.JACK, Suit.CLUB),
+        Card(Rank.TEN, Suit.CLUB),
+    ]
     # run the showdown
     game.showdown()
     # assert that the winner is the player with the best hand and that the pot is distributed
@@ -136,7 +146,8 @@ def test_player_bet():
         assert False
     except AssertionError:
         assert True
-    
+
+
 def test_player_fold():
     game = Game(1000, (10, 20))
     assert game.add_player("Player1", 1000) == True
@@ -158,7 +169,8 @@ def test_player_fold():
         assert False
     except AssertionError:
         assert True
-    
+
+
 def test_player_check():
     game = Game(1000, (10, 20))
     assert game.add_player("Player1", 1000) == True
@@ -179,6 +191,7 @@ def test_player_check():
         assert False
     except AssertionError:
         assert True
+
 
 def test_player_sitting_out():
     game = Game(1000, (10, 20))

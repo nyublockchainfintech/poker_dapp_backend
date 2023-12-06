@@ -1,4 +1,5 @@
-import cards
+from poker_dapp_backend.server.dealer import Deck, Card
+from pokerlib.enums import Rank, Suit
 from poker_dapp_backend.server.ranking import Ranker
 
 import random
@@ -10,17 +11,10 @@ parent_dir = str(Path(__file__).resolve().parent.parent)
 sys.path.append(parent_dir)
 
 
-deck = cards.Deck()
+deck = Deck()
 
-# generate a random board and hand and print out the rank of the hand
-board = []
-for _ in range(5):
-    board.append(random.choice(deck.cards))
-
-hand = []
-for _ in range(2):
-    hand.append(random.choice(deck.cards))
-
+board = [random.choice(deck.cards) for _ in range(5)]
+hand = [random.choice(deck.cards) for _ in range(2)]
 print(f"Board: {board[0]}, {board[1]}, {board[2]}, {board[3]}, {board[4]}\n")
 print(f"Hand: {hand[0]}, {hand[1]}")
 
@@ -29,13 +23,13 @@ print(f"Rank: {rank}")
 
 # generate royal flush and assert it is the highest rank
 royal_flush = [
-    cards.Card(cards.Rank.ACE, cards.Suit.SPADE),
-    cards.Card(cards.Rank.KING, cards.Suit.SPADE),
-    cards.Card(cards.Rank.QUEEN, cards.Suit.SPADE),
+    Card(Rank.ACE, Suit.SPADE),
+    Card(Rank.KING, Suit.SPADE),
+    Card(Rank.QUEEN, Suit.SPADE),
 ]
 hand = [
-    cards.Card(cards.Rank.JACK, cards.Suit.SPADE),
-    cards.Card(cards.Rank.TEN, cards.Suit.SPADE),
+    Card(Rank.JACK, Suit.SPADE),
+    Card(Rank.TEN, Suit.SPADE),
 ]
 rank = Ranker().rank(hand, royal_flush)
 print(f"Royal flush rank: {rank}")
@@ -43,13 +37,13 @@ assert rank == 1, f"Royal flush should be rank 1, got {rank}"
 
 # generate straight flush (nine to queen) and assert it is the second highest rank
 straight_flush = [
-    cards.Card(cards.Rank.NINE, cards.Suit.SPADE),
-    cards.Card(cards.Rank.TEN, cards.Suit.SPADE),
-    cards.Card(cards.Rank.JACK, cards.Suit.SPADE),
+    Card(Rank.NINE, Suit.SPADE),
+    Card(Rank.TEN, Suit.SPADE),
+    Card(Rank.JACK, Suit.SPADE),
 ]
 hand = [
-    cards.Card(cards.Rank.QUEEN, cards.Suit.SPADE),
-    cards.Card(cards.Rank.KING, cards.Suit.SPADE),
+    Card(Rank.QUEEN, Suit.SPADE),
+    Card(Rank.KING, Suit.SPADE),
 ]
 rank = Ranker().rank(hand, straight_flush)
 print(f"Straight flush rank: {rank}")
@@ -57,13 +51,13 @@ assert rank == 2, f"Straight flush should be rank 2, got {rank}"
 
 # generate four of a kind (aces) and assert it is the 11th highest rank (while it is third best hand, treys includes all possible straight flushes (of which there are 9) as ranks 2-10))
 four_of_a_kind = [
-    cards.Card(cards.Rank.ACE, cards.Suit.SPADE),
-    cards.Card(cards.Rank.ACE, cards.Suit.CLUB),
-    cards.Card(cards.Rank.KING, cards.Suit.DIAMOND),
+    Card(Rank.ACE, Suit.SPADE),
+    Card(Rank.ACE, Suit.CLUB),
+    Card(Rank.KING, Suit.DIAMOND),
 ]
 hand = [
-    cards.Card(cards.Rank.ACE, cards.Suit.HEART),
-    cards.Card(cards.Rank.ACE, cards.Suit.DIAMOND),
+    Card(Rank.ACE, Suit.HEART),
+    Card(Rank.ACE, Suit.DIAMOND),
 ]
 rank = Ranker().rank(hand, four_of_a_kind)
 print(f"Four of a kind rank: {rank}")
@@ -71,28 +65,28 @@ assert rank == 11, f"Four of a kind should be rank 3, got {rank}"
 
 # generate multiple hands and assert that the right hand is chosen as the best hand
 hand1 = [
-    cards.Card(cards.Rank.ACE, cards.Suit.SPADE),
-    cards.Card(cards.Rank.ACE, cards.Suit.CLUB),
+    Card(Rank.ACE, Suit.SPADE),
+    Card(Rank.ACE, Suit.CLUB),
 ]
 hand2 = [
-    cards.Card(cards.Rank.KING, cards.Suit.DIAMOND),
-    cards.Card(cards.Rank.KING, cards.Suit.HEART),
+    Card(Rank.KING, Suit.DIAMOND),
+    Card(Rank.KING, Suit.HEART),
 ]
 hand3 = [
-    cards.Card(cards.Rank.QUEEN, cards.Suit.DIAMOND),
-    cards.Card(cards.Rank.QUEEN, cards.Suit.HEART),
+    Card(Rank.QUEEN, Suit.DIAMOND),
+    Card(Rank.QUEEN, Suit.HEART),
 ]
 hand4 = [
-    cards.Card(cards.Rank.JACK, cards.Suit.DIAMOND),
-    cards.Card(cards.Rank.JACK, cards.Suit.HEART),
+    Card(Rank.JACK, Suit.DIAMOND),
+    Card(Rank.JACK, Suit.HEART),
 ]
 # create board with 2 aces, a five, a six, and a eight
 board = [
-    cards.Card(cards.Rank.ACE, cards.Suit.HEART),
-    cards.Card(cards.Rank.ACE, cards.Suit.DIAMOND),
-    cards.Card(cards.Rank.FIVE, cards.Suit.DIAMOND),
-    cards.Card(cards.Rank.SIX, cards.Suit.HEART),
-    cards.Card(cards.Rank.EIGHT, cards.Suit.CLUB),
+    Card(Rank.ACE, Suit.HEART),
+    Card(Rank.ACE, Suit.DIAMOND),
+    Card(Rank.FIVE, Suit.DIAMOND),
+    Card(Rank.SIX, Suit.HEART),
+    Card(Rank.EIGHT, Suit.CLUB),
 ]
 hands = [hand1, hand2, hand3, hand4]
 best_hand = Ranker().best_hand(hands, board)
@@ -101,28 +95,28 @@ assert best_hand == 0, f"Best hand should be hand1, got {best_hand}"
 
 # generate multiple hands and assert that the right hand is chosen as the best hand
 hand1 = [
-    cards.Card(cards.Rank.ACE, cards.Suit.SPADE),
-    cards.Card(cards.Rank.ACE, cards.Suit.CLUB),
+    Card(Rank.ACE, Suit.SPADE),
+    Card(Rank.ACE, Suit.CLUB),
 ]
 hand2 = [
-    cards.Card(cards.Rank.KING, cards.Suit.DIAMOND),
-    cards.Card(cards.Rank.KING, cards.Suit.HEART),
+    Card(Rank.KING, Suit.DIAMOND),
+    Card(Rank.KING, Suit.HEART),
 ]
 hand3 = [
-    cards.Card(cards.Rank.QUEEN, cards.Suit.DIAMOND),
-    cards.Card(cards.Rank.QUEEN, cards.Suit.HEART),
+    Card(Rank.QUEEN, Suit.DIAMOND),
+    Card(Rank.QUEEN, Suit.HEART),
 ]
 hand4 = [
-    cards.Card(cards.Rank.JACK, cards.Suit.DIAMOND),
-    cards.Card(cards.Rank.JACK, cards.Suit.HEART),
+    Card(Rank.JACK, Suit.DIAMOND),
+    Card(Rank.JACK, Suit.HEART),
 ]
 # create board with two kings, a five, a six, and a eight
 board = [
-    cards.Card(cards.Rank.KING, cards.Suit.HEART),
-    cards.Card(cards.Rank.KING, cards.Suit.DIAMOND),
-    cards.Card(cards.Rank.FIVE, cards.Suit.DIAMOND),
-    cards.Card(cards.Rank.SIX, cards.Suit.HEART),
-    cards.Card(cards.Rank.EIGHT, cards.Suit.CLUB),
+    Card(Rank.KING, Suit.HEART),
+    Card(Rank.KING, Suit.DIAMOND),
+    Card(Rank.FIVE, Suit.DIAMOND),
+    Card(Rank.SIX, Suit.HEART),
+    Card(Rank.EIGHT, Suit.CLUB),
 ]
 hands = [hand1, hand2, hand3, hand4]
 best_hand = Ranker().best_hand(hands, board)

@@ -8,7 +8,6 @@ from random import shuffle as default_shuffle
 import json
 
 
-
 class Game:
     def __init__(
         self,
@@ -17,7 +16,6 @@ class Game:
         players: list[Player] = [],
         max_players: int = 8,
     ):
-
         self.buy_in = buy_in
         self.players = players
         self.community_cards = []
@@ -241,7 +239,7 @@ class Game:
             "current_small_index": self.current_small,
             "current_big_index": self.current_big,
             "active_player_index": self.active_player,
-            "current_round": self.current_round,
+            "current_round": self.current_round.value,
             "current_pot": self.current_pot,
             "max_players": self.max_players,
             "games_played": self.games_played,

@@ -41,11 +41,11 @@ class Ranker:
     
     def rank(self, hand: list[Card], board: list[Card]) -> int:
         """
-        Rank the hand given the board. Takes in a list of pokerlib format cards.
+        Rank the hand given the board. Takes in a list of pokerlib format 
 
         Args:
-            hand (list[cards.Card]): Hand to rank
-            board (list[cards.Card]): Board to rank against
+            hand (list[Card]): Hand to rank
+            board (list[Card]): Board to rank against
 
         Returns:
             int: Rank of the hand
@@ -60,10 +60,10 @@ class Ranker:
     
     def best_hand(self, hands: list[list[Card]], board: list[int]) -> int:
         """
-        Find the best hand given a list of hands and a board. Takes in a list of pokerlib format cards.
+        Find the best hand given a list of hands and a board. Takes in a list of pokerlib format 
         
         Args:
-            hands (list[list[card.Cards]]): Hands to rank
+            hands (list[list[card.]): Hands to rank
             board (list[int]): Board to rank against
             
         Returns:

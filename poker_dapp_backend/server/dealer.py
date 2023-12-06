@@ -1,5 +1,20 @@
 from poker_dapp_backend.base import Card
 from poker_dapp_backend.enums import DealerResponse, ClientResponse, WebSocketStatus
+from pokerlib.enums import Rank, Suit
+
+
+class Deck:
+    def __init__(self) -> None:
+        self.cards= []
+        self.build()
+
+    def build(self) -> None:
+        """
+        Build a deck of from Suit and Rank enums
+        """
+        for suit in Suit:
+            for rank in Rank:
+                self.cards.append(Card(rank, suit))
 
 
 class Dealer(Card):

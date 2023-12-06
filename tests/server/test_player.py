@@ -12,8 +12,8 @@ def test_player_init():
     assert player.name == "test"
     assert player.balance == 100
     assert player.hand == []
-    assert player.current_blind == None
-    assert player.status == None
+    assert player.current_blind is None
+    assert player.status is None
 
 
 def test_player_receive_card():
