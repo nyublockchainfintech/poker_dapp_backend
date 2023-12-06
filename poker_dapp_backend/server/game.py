@@ -1,5 +1,6 @@
-from poker_dapp_backend.base import Cards
-from poker_dapp_backend.server.player import Player, Blind, Status
+from poker_dapp_backend.base import Card
+from pokerlib.enums import Rank, Suit
+from poker_dapp_backend.server.player import Player, Status
 from poker_dapp_backend.server.ranking import Ranker
 from poker_dapp_backend.enums import BettingRound
 from random import shuffle as default_shuffle
@@ -20,6 +21,7 @@ class Game:
         self.current_round = 0
         self.current_pot = 0
         self.max_players = max_players
+        self.card = Card(Rank.ACE, Suit.SPADE)
         self.deck = []
         self.ranker = Ranker()
         self.games_played = 0
@@ -37,6 +39,9 @@ class Game:
             bool: True if added
                   False if not added
         """
+        # if there are no players, create empty list
+        if self.players is None:
+            self.players = []
         # if table full, don't add player and return False
         if len(self.players) >= self.max_players:
             return False
@@ -53,20 +58,40 @@ class Game:
             True if game successfully started
             False if not 
         """
+
         # make sure there's enough players to start game
         if len(self.players) < 2:
             return False
         
-        # increment blinds if not first round
-        if self.games_played > 0:
+        # incremet games played
+        self.games_played += 1
+
+        # increment blinds and dealer if not first round
+        if self.games_played > 1:
+            self.current_dealer = (self.current_dealer + 1) % len(self.players)
             self.current_small = (self.current_small + 1) % len(self.players)
             self.current_big = (self.current_big + 1) % len(self.players)
+
+        # set current pot to 0
+        self.current_pot = 0
+
+        # set all players to active that are not sitting out
+        for player in self.players:
+            if player.status != Status.SITTING_OUT:
+                player.set_status(Status.ACTIVE)
+
+        # remove blinds from players and add to pot
+        self.players[self.current_small].bet(self.small_blind)
+        self.current_pot += self.small_blind
+        self.players[self.current_big].bet(self.big_blind)
+        self.current_pot += self.big_blind
 
         # set active player to player after big blind
         self.active_player = (self.current_big + 1) % len(self.players)
 
         # initialize deck and shuffle
-        self.deck: list = Cards.init_deck() # typehint so VSCode stops being annoying
+
+        self.deck = self.card.init_deck() 
         default_shuffle(self.deck)
 
         # deal cards
@@ -76,6 +101,7 @@ class Game:
 
         # set betting round to pre_flop
         self.current_round = BettingRound.PRE_FLOP
+        return True
 
     def increment_round(self) -> None:
         """
@@ -83,7 +109,15 @@ class Game:
         """
         if self.current_round == BettingRound.RIVER:
             raise ValueError("Can't go to next round, it is the river")
-        self.current_round.next_round()
+        
+        if self.current_round == BettingRound.PRE_FLOP:
+            self.current_round = BettingRound.FLOP
+        elif self.current_round == BettingRound.FLOP:
+            self.current_round = BettingRound.TURN
+        elif self.current_round == BettingRound.TURN:
+            self.current_round = BettingRound.RIVER
+
+
         # if it's the flop, deal 3 cards
         if self.current_round == BettingRound.FLOP:
             for _ in range(3):
@@ -98,13 +132,20 @@ class Game:
         """
         # get all hands if the player is not folded
         hands = []
+        player_indexes = []
+        counter = 0
         for player in self.players:
             if player.status == Status.ACTIVE or player.status == Status.ALL_IN:
                 hands.append(player.hand)
+                player_indexes.append(counter)
+            counter += 1
         # get winner index
-        self.winner = self.ranker.best_hand(hands, self.community_cards)
+        self.winner = player_indexes[self.ranker.best_hand(hands, self.community_cards)]
         # distribute pot
         self.players[self.winner].balance += self.current_pot
+        # empty hands
+        for player in self.players:
+            player.hand = []
 
     def player_bet(self, player_index: int, bet_amount: int) -> None:
         """
@@ -116,6 +157,7 @@ class Game:
         """
         assert player_index == self.active_player, "illegal bet argument, bet not from active player"
         self.players[player_index].bet(bet_amount)
+        self.current_pot += bet_amount
         self.active_player = (self.active_player + 1) % len(self.players)
 
     def player_check(self, player_index: int) -> None:
@@ -147,6 +189,7 @@ class Game:
         Args:
             player_index (int): index of player that is sitting out
         """
+        assert self.players[player_index].status != Status.SITTING_OUT, "illegal sit out argument, player already sitting out"
         self.players[player_index].sit_out()
     
     def player_returns(self, player_index: int) -> None:
@@ -156,6 +199,7 @@ class Game:
         Args:
             player_index (int): index of player that is rejoining
         """
+        assert self.players[player_index].status == Status.SITTING_OUT, "illegal return argument, player not sitting out"
         self.players[player_index].rejoin()
     
     def serialize(self) -> str:

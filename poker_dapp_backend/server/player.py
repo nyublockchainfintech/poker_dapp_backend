@@ -1,5 +1,5 @@
 import json
-from poker_dapp_backend.server.dealer import Card
+from poker_dapp_backend.base import Card
 from enum import Enum
 
 class Status(Enum):
