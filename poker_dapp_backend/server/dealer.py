@@ -13,6 +13,7 @@ class Dealer(Card):
         self.cards = self.init_deck()
         self.shuffle_players = set()
         self.connected_players = connected_players
+        self.command: ClientResponse | DealerResponse = DealerResponse.DOING_NOTHING
         self.message = {}
 
     # TODO: Figure out a way to collect keys for the right cards
@@ -59,12 +60,12 @@ class Dealer(Card):
                 DealerResponse.SHUFFLE,
                 self.cards,
                 "Start shuffling the deck",
-                broadcast=True, # TODO: True for now, but false in a real game
+                broadcast=True,  # TODO: True for now, but false in a real game
             )
         else:
             await self.send_response(
                 DealerResponse.WAIT,
-                None,
+                [],
                 "Waiting for more players to join",
                 broadcast=True,
             )

@@ -1,5 +1,5 @@
-from poker_dapp_backend.base import Cards
-from poker_dapp_backend.client.players import Player
+from poker_dapp_backend.base import Card
+from poker_dapp_backend.client.players import ShufflePlayer
 
 
 # TODO: Write tests for string_to_bytes_list and bytes_to_string_list
@@ -9,9 +9,9 @@ def test_join(two_player_game):
     """
     _, _, p1_msg1, p2_msg1 = two_player_game
 
-    cards = Cards()
+    cards = Card()
     assert p1_msg1.get("command") == "waiting"
-    assert p1_msg1.get("content") is None
+    assert p1_msg1.get("content") == []
 
     assert p2_msg1.get("content") == cards.init_deck()
     assert p2_msg1.get("command") == "shuffle"
@@ -22,7 +22,7 @@ def test_shuffle_deck(two_player_game):
     Test that players can shuffle the deck
     """
     _, ws2, _, p2_msg1 = two_player_game
-    p2 = Player(ws2)
+    p2 = ShufflePlayer(ws2)
     p2.deserialize(p2_msg1)
     unshuffled_cards = p2.cards
     p2.shuffle_deck()
@@ -34,7 +34,7 @@ def test_shuffle_deck(two_player_game):
 
 def test_deserialize(two_player_game):
     _, ws2, _, p2_msg1 = two_player_game
-    p2 = Player(ws2)
+    p2 = ShufflePlayer(ws2)
     p2.deserialize(p2_msg1)
     assert p2.command == p2_msg1.get("command")
     assert p2.cards == p2.string_to_bytes_list(p2_msg1["content"])
@@ -42,7 +42,7 @@ def test_deserialize(two_player_game):
 
 def test_serialize(two_player_game):
     _, ws2, _, p2_msg1 = two_player_game
-    p2 = Player(ws2)
+    p2 = ShufflePlayer(ws2)
     p2.deserialize(p2_msg1)
     msg = p2.serialize()
     assert msg["command"] == p2_msg1["command"]
@@ -52,11 +52,11 @@ def test_serialize(two_player_game):
 def test_encrypt_deck(two_player_game):
     ws1, ws2, _, p2_msg1 = two_player_game
 
-    p1 = Player(ws1)
+    p1 = ShufflePlayer(ws1)
     p1.deserialize(p2_msg1)
     p1_encrypted_cards = p1.encrypt_deck()
 
-    p2 = Player(ws2)
+    p2 = ShufflePlayer(ws2)
     p2.deserialize(p2_msg1)
     p2_encrypted_cards = p2.encrypt_deck()
 
@@ -68,7 +68,7 @@ def test_encrypt_deck(two_player_game):
 def test_decrypt_deck(two_player_game):
     ws1, _, _, p2_msg1 = two_player_game
 
-    p1 = Player(ws1)
+    p1 = ShufflePlayer(ws1)
     p1.deserialize(p2_msg1)
     unencrypted_cards = p1.cards
     encrypted_cards = p1.encrypt_deck()
