@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class DealerResponse(str, Enum):
+    DOING_NOTHING = "doing_nothing"
     WAIT = "waiting"
     SHUFFLE = "shuffle"
     DECRYPT = "decrypt"
