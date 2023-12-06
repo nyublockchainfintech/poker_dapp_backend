@@ -1,4 +1,4 @@
-from poker_dapp_backend.base import Cards
+from poker_dapp_backend.base import Card
 from poker_dapp_backend.server.player import Player, Status
 from poker_dapp_backend.server.ranking import Ranker
 from poker_dapp_backend.enums import BettingRound
@@ -7,7 +7,7 @@ import json
 
 class Game:
 
-    def __init__(self, buy_in: int, blinds: tuple[int, int], players: list[Player] = None, max_players: int = 8):
+    def __init__(self, buy_in: int, blinds: tuple[int, int], players: list[Player] = [], max_players: int = 8):
         self.buy_in = buy_in
         self.players = players
         self.community_cards = []
@@ -175,7 +175,7 @@ class Game:
             "current_small_index": self.current_small,
             "current_big_index": self.current_big,
             "active_player_index": self.active_player,
-            "current_round": self.current_round.value,
+            "current_round": self.current_round,
             "current_pot": self.current_pot,
             "max_players": self.max_players,
             "games_played": self.games_played,
