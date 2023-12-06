@@ -1,6 +1,6 @@
 from poker_dapp_backend.server.player import Player, Status
 from pokerlib.enums import Rank, Suit
-from poker_dapp_backend.server.dealer import Card, Rank, Suit
+from poker_dapp_backend.server.dealer import Card
 import json
 
 
