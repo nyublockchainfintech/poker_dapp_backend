@@ -1,8 +1,8 @@
-from poker_dapp_backend.base import Cards
+from poker_dapp_backend.base import Card
 from poker_dapp_backend.enums import DealerResponse, ClientResponse, WebSocketStatus
 
 
-class Dealer(Cards):
+class Dealer(Card):
     """
     Dealer class that handles the deck of cards and shuffling
     """

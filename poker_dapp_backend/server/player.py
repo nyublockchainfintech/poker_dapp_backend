@@ -78,6 +78,18 @@ class Player:
         """
         pass
 
+    def sit_out(self) -> None:
+        """
+        Sits out the player
+        """
+        self.set_status(Status.SITTING_OUT)
+
+    def rejoin(self) -> None:
+        """
+        Rejoins the player
+        """
+        self.set_status(Status.ACTIVE)
+
     def serialize(self) -> str:
         """
         Serializes the player's data

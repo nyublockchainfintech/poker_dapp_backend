@@ -3,12 +3,14 @@ from poker_dapp_backend.server.player import Player, Blind, Status
 from poker_dapp_backend.server.ranking import Ranker
 from poker_dapp_backend.enums import BettingRound
 from random import shuffle as default_shuffle
+import json
 
 class Game:
 
     def __init__(self, buy_in: int, blinds: tuple[int, int], players: list[Player] = None, max_players: int = 8):
         self.buy_in = buy_in
         self.players = players
+        self.community_cards = []
         self.small_blind = blinds[0]
         self.big_blind = blinds[1]
         self.current_dealer = 0 
@@ -21,6 +23,7 @@ class Game:
         self.deck = []
         self.ranker = Ranker()
         self.games_played = 0
+        self.winner = None
 
     def add_player(self, name: str, starting_balance: int) -> bool:
         """
@@ -81,7 +84,28 @@ class Game:
         if self.current_round == BettingRound.RIVER:
             raise ValueError("Can't go to next round, it is the river")
         self.current_round.next_round()
-        
+        # if it's the flop, deal 3 cards
+        if self.current_round == BettingRound.FLOP:
+            for _ in range(3):
+                self.community_cards.append(self.deck.pop())
+        # if it's the turn or river, deal 1 card
+        elif self.current_round == BettingRound.TURN or self.current_round == BettingRound.RIVER:
+            self.community_cards.append(self.deck.pop())
+
+    def showdown(self) -> None:
+        """
+        Determines the winner of the game and sets the winner index and distributes pot
+        """
+        # get all hands if the player is not folded
+        hands = []
+        for player in self.players:
+            if player.status == Status.ACTIVE or player.status == Status.ALL_IN:
+                hands.append(player.hand)
+        # get winner index
+        self.winner = self.ranker.best_hand(hands, self.community_cards)
+        # distribute pot
+        self.players[self.winner].balance += self.current_pot
+
     def player_bet(self, player_index: int, bet_amount: int) -> None:
         """
         Adjusts game state when a player submits a bet
@@ -123,8 +147,7 @@ class Game:
         Args:
             player_index (int): index of player that is sitting out
         """
-        #TODO
-        return 0
+        self.players[player_index].sit_out()
     
     def player_returns(self, player_index: int) -> None:
         """
@@ -133,8 +156,33 @@ class Game:
         Args:
             player_index (int): index of player that is rejoining
         """
-        #TODO
-        return 0
+        self.players[player_index].rejoin()
+    
+    def serialize(self) -> str:
+        """
+        Serializes game state to JSON
+
+        returns:
+            str: JSON string representing game state
+        """
+        to_json = {
+            "buy_in": self.buy_in,
+            "players": [player.serialize() for player in self.players],
+            "community_cards": [card.encode() for card in self.community_cards],
+            "small_blind": self.small_blind,
+            "big_blind": self.big_blind,
+            "current_dealer_index": self.current_dealer,
+            "current_small_index": self.current_small,
+            "current_big_index": self.current_big,
+            "active_player_index": self.active_player,
+            "current_round": self.current_round.value,
+            "current_pot": self.current_pot,
+            "max_players": self.max_players,
+            "games_played": self.games_played,
+            "winner_index": self.winner
+        }
+        return json.dumps(to_json)
+
     
     
 
