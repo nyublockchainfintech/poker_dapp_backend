@@ -18,6 +18,9 @@ treys = "^0.1.8"
 httpx = "^0.25.1"
 pytest-asyncio = "^0.21.1"
 uvicorn = "^0.24.0.post1"
+coverage = "^7.3.2"
+redis = "^5.0.1"
+black = "^23.11.0"
 
 
 [build-system]
