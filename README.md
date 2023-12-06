@@ -78,3 +78,10 @@ Mental Pokeer
 - [Mental Poker Wiki](https://en.wikipedia.org/wiki/Mental_poker)
 - [Fast Mental Poker Protocol](https://eprint.iacr.org/2009/439.pdf)
 - [Mental Poker Github](https://github.com/zachratliff/mental-poker)
+
+Game State
+
+- When a player cashes out of the game, the player calls the smart contract
+  from the client side. They send a signed snapshot (signed by everyone) of the
+  last valid game balances
+- I have to track the game state separately

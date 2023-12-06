@@ -23,26 +23,3 @@ def symencrypt(key: bytes, message: bytes) -> bytes:
     user_key.update(key)
     key = user_key.digest(len(message))
     return exor(message, key)
-
-
-# TODO: Move some of the following code to a test file
-if __name__ == "__main__":
-    M = "hello"
-    key1 = "bobpass"
-    key2 = "alicepass"
-
-    # Encrypt the message with key1, then key2
-    print("Message: ", M)
-
-    cipher1 = symencrypt(key1, M)
-    cipher2 = symencrypt(key2, cipher1.decode())
-
-    print("Bob's key applied: ", binascii.hexlify(cipher1).decode())
-    print("Alice's key applied: ", binascii.hexlify(cipher2).decode())
-
-    # Decrypt the message with key2, then key1
-    print("\nDecrypting with Alice's key, then Bob's")
-    cipher3 = symencrypt(key2, cipher2.decode())
-    cipher4 = symencrypt(key1, cipher3.decode())
-
-    print("Message: ", cipher4.decode())

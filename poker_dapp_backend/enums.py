@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class DealerResponse(str, Enum):
+    DOING_NOTHING = "doing_nothing"
     WAIT = "waiting"
     SHUFFLE = "shuffle"
     DECRYPT = "decrypt"
@@ -25,11 +26,3 @@ class BettingRound(Enum):
     FLOP = 2
     TURN = 3
     RIVER = 4
-
-    def next_round(self):
-        cls = self.__class__
-        members = list(cls)
-        index = members.index(self) + 1
-        if index >= len(members):
-            raise ValueError("No next round available.")
-        return members[index]
