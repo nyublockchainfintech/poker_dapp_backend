@@ -1,4 +1,5 @@
 from poker_dapp_backend.base import Card
+from poker_dapp_backend.server.utils import connect_to_redis
 from pokerlib.enums import Rank, Suit
 from poker_dapp_backend.server.player import Player, Status
 from poker_dapp_backend.server.ranking import Ranker
@@ -6,19 +7,25 @@ from poker_dapp_backend.enums import BettingRound
 from random import shuffle as default_shuffle
 import json
 
-class Game:
 
-    def __init__(self, buy_in: int, blinds: tuple[int, int], players: list[Player] = None, max_players: int = 8):
+class Game:
+    def __init__(
+        self,
+        buy_in: int,
+        blinds: tuple[int, int],
+        players: list[Player] = [],
+        max_players: int = 8,
+    ):
         self.buy_in = buy_in
         self.players = players
         self.community_cards = []
         self.small_blind = blinds[0]
         self.big_blind = blinds[1]
-        self.current_dealer = 0 
+        self.current_dealer = 0
         self.current_small = 1
         self.current_big = 2
         self.active_player = 3
-        self.current_round = 0
+        self.current_round = BettingRound.PRE_FLOP
         self.current_pot = 0
         self.max_players = max_players
         self.card = Card(Rank.ACE, Suit.SPADE)
@@ -26,10 +33,11 @@ class Game:
         self.ranker = Ranker()
         self.games_played = 0
         self.winner = None
+        self.counter = 0
 
     def add_player(self, name: str, starting_balance: int) -> bool:
         """
-        Adds a player to the game. 
+        Adds a player to the game.
 
         args:
             name (str): name of player to add to game
@@ -49,20 +57,20 @@ class Game:
         player = Player(name, starting_balance)
         self.players.append(player)
         return True
-    
+
     def start_game(self) -> bool:
         """
         Starts the game by assigning blinds, dealing cards, and setting current_round and current_player
 
         returns:
             True if game successfully started
-            False if not 
+            False if not
         """
 
         # make sure there's enough players to start game
         if len(self.players) < 2:
             return False
-        
+
         # incremet games played
         self.games_played += 1
 
@@ -91,7 +99,7 @@ class Game:
 
         # initialize deck and shuffle
 
-        self.deck = self.card.init_deck() 
+        self.deck = self.card.init_deck()
         default_shuffle(self.deck)
 
         # deal cards
@@ -109,7 +117,7 @@ class Game:
         """
         if self.current_round == BettingRound.RIVER:
             raise ValueError("Can't go to next round, it is the river")
-        
+
         if self.current_round == BettingRound.PRE_FLOP:
             self.current_round = BettingRound.FLOP
         elif self.current_round == BettingRound.FLOP:
@@ -117,13 +125,15 @@ class Game:
         elif self.current_round == BettingRound.TURN:
             self.current_round = BettingRound.RIVER
 
-
         # if it's the flop, deal 3 cards
         if self.current_round == BettingRound.FLOP:
             for _ in range(3):
                 self.community_cards.append(self.deck.pop())
         # if it's the turn or river, deal 1 card
-        elif self.current_round == BettingRound.TURN or self.current_round == BettingRound.RIVER:
+        elif (
+            self.current_round == BettingRound.TURN
+            or self.current_round == BettingRound.RIVER
+        ):
             self.community_cards.append(self.deck.pop())
 
     def showdown(self) -> None:
@@ -155,7 +165,9 @@ class Game:
             player_index (int): index of player that is making a bet
             bet_amount (int): amount that player is betting
         """
-        assert player_index == self.active_player, "illegal bet argument, bet not from active player"
+        assert (
+            player_index == self.active_player
+        ), "illegal bet argument, bet not from active player"
         self.players[player_index].bet(bet_amount)
         self.current_pot += bet_amount
         self.active_player = (self.active_player + 1) % len(self.players)
@@ -167,10 +179,12 @@ class Game:
         Args:
             player_index (int): index of player that is checking
         """
-        assert player_index == self.active_player, "illegal check argument, check not from active player"
+        assert (
+            player_index == self.active_player
+        ), "illegal check argument, check not from active player"
         self.players[player_index].check()
         self.active_player = (self.active_player + 1) % len(self.players)
-    
+
     def player_fold(self, player_index: int) -> None:
         """
         Adjusts game state when a player folds
@@ -178,7 +192,9 @@ class Game:
         Args:
             player_index (int): index of player that is folding
         """
-        assert player_index == self.active_player, "illegal fold argument, check not from active player"
+        assert (
+            player_index == self.active_player
+        ), "illegal fold argument, check not from active player"
         self.players[player_index].fold()
         self.active_player = (self.active_player + 1) % len(self.players)
 
@@ -189,9 +205,11 @@ class Game:
         Args:
             player_index (int): index of player that is sitting out
         """
-        assert self.players[player_index].status != Status.SITTING_OUT, "illegal sit out argument, player already sitting out"
+        assert (
+            self.players[player_index].status != Status.SITTING_OUT
+        ), "illegal sit out argument, player already sitting out"
         self.players[player_index].sit_out()
-    
+
     def player_returns(self, player_index: int) -> None:
         """
         Adjusts game state when a player rejoins after sitting out
@@ -199,9 +217,11 @@ class Game:
         Args:
             player_index (int): index of player that is rejoining
         """
-        assert self.players[player_index].status == Status.SITTING_OUT, "illegal return argument, player not sitting out"
+        assert (
+            self.players[player_index].status == Status.SITTING_OUT
+        ), "illegal return argument, player not sitting out"
         self.players[player_index].rejoin()
-    
+
     def serialize(self) -> str:
         """
         Serializes game state to JSON
@@ -223,10 +243,25 @@ class Game:
             "current_pot": self.current_pot,
             "max_players": self.max_players,
             "games_played": self.games_played,
-            "winner_index": self.winner
+            "winner_index": self.winner,
         }
         return json.dumps(to_json)
 
-    
-    
+    def store_state_in_redis(self, counter=None):
+        """
+        Set game state in redis
+        """
+        r = connect_to_redis()
+        state = self.serialize()
+        if counter:
+            self.counter = counter
+        return r.hset("game_state", f"state:{self.counter}", state)
 
+    def get_latest_state(self, counter=None):
+        """
+        Get latest game state from redis
+        """
+        r = connect_to_redis()
+        if counter:
+            self.counter = counter
+        return r.hget("game_state", f"state:{self.counter}")

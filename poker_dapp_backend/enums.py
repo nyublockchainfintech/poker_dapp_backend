@@ -26,4 +26,3 @@ class BettingRound(Enum):
     FLOP = 2
     TURN = 3
     RIVER = 4
-
