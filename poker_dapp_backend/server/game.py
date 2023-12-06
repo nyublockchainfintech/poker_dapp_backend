@@ -1,5 +1,5 @@
 from poker_dapp_backend.base import Cards
-from poker_dapp_backend.server.player import Player, Blind, Status
+from poker_dapp_backend.server.player import Player, Status
 from poker_dapp_backend.server.ranking import Ranker
 from poker_dapp_backend.enums import BettingRound
 from random import shuffle as default_shuffle
