@@ -2,10 +2,10 @@ from typing import Dict
 from fastapi import FastAPI, WebSocket
 from starlette.websockets import WebSocketDisconnect
 from poker_dapp_backend.server.game import Game
-from poker_dapp_backend.server.player import Player
 import collections
 from pydantic import BaseModel
 from poker_dapp_backend.server.game import Game
+import json
 
 
 app = FastAPI()
@@ -13,6 +13,8 @@ app = FastAPI()
 connected_players = set()
 
 rooms = {}
+
+room_sockets = {}
 
 
 class PlayerRoomModel(BaseModel):
@@ -33,28 +35,49 @@ async def websocket_endpoint(websocket: WebSocket):
             data = await websocket.receive_json()
             msg = data.get("MESSAGE", None)
             game_id = msg.get("GAME_ID", None)
+            msg_type = msg.get("MESSAGE TYPE", None)
 
             # Process different message types
-            if data["MESSAGE TYPE"] == "BET":
-                rooms[game_id].bet(data["PLAYER ID"], data["AMOUNT"])
+            if msg_type == "BET":
+                player_index = rooms[game_id].get_player_index(msg["PLAYER NAME"])
+                rooms[game_id].player_bet(player_index, data["AMOUNT"])
 
-            elif data["MESSAGE TYPE"] == "JOIN":
+            elif msg_type == "CHECK":
+                player_index = rooms[game_id].get_player_index(msg["PLAYER NAME"])
+                rooms[game_id].player_check(player_index, data["AMOUNT"])
+
+            elif msg_type == "FOLD":
+                player_index = rooms[game_id].get_player_index(msg["PLAYER NAME"])
+                rooms[game_id].player_fold(player_index)
+
+            elif msg_type == "START_GAME":
+                rooms[game_id].start_game()
+
+            elif msg_type == "JOIN":
                 rooms[game_id].add_player(
                     msg["PLAYER NAME"],
                     msg["PLAYER BALANCE"],
                 )
+                room_sockets[game_id].append(websocket)
 
-            elif data["MESSAGE TYPE"] == "CREATE":
+            elif msg_type == "LEAVE":
+                rooms[game_id].remove_player(msg["PLAYER NAME"])
+                room_sockets[game_id].remove(websocket)
+
+            elif msg_type == "CREATE":
                 game_id = room_counter
                 rooms[game_id] = Game(
                     buy_in=msg["BUY_IN"],
                     blinds=msg["BLINDS"],
                 )
                 room_counter += 1
+                room_sockets[game_id] = []
 
             # Broadcast received data to all connected clients
-            for ws in connected_players:
-                await ws.send_json(data)  # Modify as needed for broadcasting
+            
+            new_game_state = json.loads(rooms[game_id].serialize())
+            for ws in room_sockets[game_id]:
+                await ws.send_json(new_game_state)  # Modify as needed for broadcasting
 
     except WebSocketDisconnect:
         connected_players.remove(websocket)
