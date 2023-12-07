@@ -100,7 +100,7 @@ class Player:
         to_json = {
             "name": self.name,
             "balance": self.balance,
-            #"hand": [card.encode() for card in self.hand],
+            "hand": [card.encode() for card in self.hand],
             "status": self.status.name if self.status else None,
         }
         # jsonify the data

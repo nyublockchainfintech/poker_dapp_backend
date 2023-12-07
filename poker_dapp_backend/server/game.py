@@ -161,6 +161,13 @@ class Game:
         ):
             self.community_cards.append(self.deck.pop())
 
+        # set active player to first active player after big blind
+        self.active_player = self.current_big
+        for _ in range(len(self.players)):
+            self.active_player = (self.active_player + 1) % len(self.players)
+            if self.players[self.active_player].status == Status.ACTIVE:
+                break
+
     def showdown(self) -> None:
         """
         Determines the winner of the game and sets the winner index and distributes pot
@@ -212,7 +219,7 @@ class Game:
         """
         assert (
             player_index == self.active_player
-        ), "illegal check argument, check not from active player"
+        ), "illegal check argument, check not from active player. check was from player: " + str(player_index) + " active player is: " + str(self.active_player)
         self.players[player_index].check()
         # loop around table once and look for next active player
         for _ in range(len(self.players)):
