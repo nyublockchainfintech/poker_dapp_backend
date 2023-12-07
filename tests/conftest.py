@@ -32,5 +32,15 @@ def server_create():
 
 
 @pytest.fixture
+def two_player_poker_game():
+    with ExitStack() as stack:
+        client1 = TestClient(main_app)
+        client2 = TestClient(main_app)
+        ws1 = stack.enter_context(client1.websocket_connect("/ws"))
+        ws2 = stack.enter_context(client2.websocket_connect("/ws"))
+        yield ws1, ws2
+
+
+@pytest.fixture
 def contract_connection():
     return PokerGameTables.connect_to_contract(RPC_URL, CONTRACT_ADDRESS, CONTRACT_ABI)
