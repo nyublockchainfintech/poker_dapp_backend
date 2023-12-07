@@ -4,15 +4,15 @@ from poker_dapp_backend.server.game import Game
 from poker_dapp_backend.server.player import Player
 import collections
 from pydantic import BaseModel
+from poker_dapp_backend.server.game import Game
 
 #from poker_dapp_backend.server.dealer import Dealer
 
 app = FastAPI()
 
 connected_players = set()
-curr_games = ""
 
-curr_id = 1
+# curr_id = 1
 
 rooms = collections.defaultdict(Game) #id:game
 
@@ -24,6 +24,14 @@ class PlayerModel(BaseModel):
     hand: list
     status: int 
     
+class JoinRoomModel(BaseModel):
+    game_id: int
+
+    name: str
+    balance: int
+    hand: list
+    status: int 
+
 # TODO: Add join confirmation when a player joins the game
 # @app.websocket("/ws")
 # async def websocket_endpoint(websocket: WebSocket):
@@ -42,16 +50,18 @@ class PlayerModel(BaseModel):
 
 @app.get("/ws/rooms/{game_id}")
 async def get_game(game_id: int):
+    
     return {  rooms[game_id].serialize() }
 
  
-# @app.get("/ws/all_rooms")
-# async def get_game():
+@app.get("/ws/all_rooms")
+async def get_game():
+    curr_games = ""
 
-#     for game_id, _ in rooms.items():
-#         curr_games += rooms[game_id].serialize()
+    for game_id, _ in rooms.items():
+        curr_games += rooms[game_id].serialize()
 
-#     return {  curr_games }
+    return {  curr_games }
 
 # @app.post("/ws/add_player")
 # async def add_player(player: PlayerModel):
@@ -62,7 +72,21 @@ async def get_game(game_id: int):
 #             rooms[curr_id] = Game()
 #             rooms[curr_id].add_player(player.name, player.balance)
 #             curr_id += 1
-#     return player
+#     return { player }
+
+@app.post("/ws/join_room")
+async def join_room(player: JoinRoomModel):
+
+    if len(rooms[player.game_id].players) == rooms[player.game_id].max_players:
+        return { "Game is full, join another room" }
+
+    else:
+        rooms[player.game_id].add_player(player.name, player.balance)
+        return { rooms[player.game_id].serialize() }
+
+
+
+
 
 
 

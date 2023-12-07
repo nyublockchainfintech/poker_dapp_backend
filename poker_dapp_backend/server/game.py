@@ -241,7 +241,7 @@ class Game:
             "current_small_index": self.current_small,
             "current_big_index": self.current_big,
             "active_player_index": self.active_player,
-            "current_round": self.current_round,
+            "current_round": self.current_round.name,
             "current_pot": self.current_pot,
             "max_players": self.max_players,
             "games_played": self.games_played,
