@@ -24,45 +24,64 @@ class PlayerModel(BaseModel):
     hand: list
     status: int 
     
-# TODO: Add join confirmation when a player joins the game
-# @app.websocket("/ws")
-# async def websocket_endpoint(websocket: WebSocket):
-#     await websocket.accept()
-#     connected_players.add(websocket)
-#     dealer = Dealer(connected_players)
-#     try:
-#         while True:
-#             data = await websocket.receive_json()
-#             print("Data received from a client:", data)
-#             # Broadcast received data to all connected clients
-#             await dealer.reply(data)
-#     except WebSocketDisconnect:
-#         connected_players.remove(websocket)
-#         print(f"Client {websocket} disconnected")
+#TODO: Add join confirmation when a player joins the game
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    connected_players.add(websocket)
+    dealer = Dealer(connected_players)
+    try:
+        while True:
+            data = await websocket.receive_json()
+            print("Data received from a client:", data)
+            # Broadcast received data to all connected clients
+            await dealer.reply(data)
+    except WebSocketDisconnect:
+        connected_players.remove(websocket)
+        print(f"Client {websocket} disconnected")
+
+@app.post("/ws/start_game/{game_id}")
+async def start_game(game_id: int):
+    if game_id not in rooms:
+        return {"error": "Game not found"}
+
+    game = rooms[game_id]
+    if not game.start_game():
+        return {"error": "Cannot start game"}
+
+    return {"message": "Game started", "game_state": game.serialize()}
+
+#create a new game
+@app.get("/ws/new_game/{buy_in}/{small_blind}/{big_blind}")
+async def new_game(buy_in: int, small_blind: int, big_blind: int):
+    global curr_id
+    rooms[curr_id] = Game(buy_in=buy_in, blinds=[small_blind, big_blind])
+    curr_id += 1
+    return {"message": "Game created", "game_id": curr_id - 1}
 
 @app.get("/ws/rooms/{game_id}")
 async def get_game(game_id: int):
     return {  rooms[game_id].serialize() }
 
  
-# @app.get("/ws/all_rooms")
-# async def get_game():
+@app.get("/ws/all_rooms")
+async def get_game():
+    global curr_games
+    for game_id, _ in rooms.items():
+        curr_games += rooms[game_id].serialize()
 
-#     for game_id, _ in rooms.items():
-#         curr_games += rooms[game_id].serialize()
+    return {  curr_games }
 
-#     return {  curr_games }
-
-# @app.post("/ws/add_player")
-# async def add_player(player: PlayerModel):
-#     for game_id, game in rooms.items():
-#         if game.add_player(player.name, player.balance):
-#             rooms[game_id] = game
-#         else: 
-#             rooms[curr_id] = Game()
-#             rooms[curr_id].add_player(player.name, player.balance)
-#             curr_id += 1
-#     return player
+@app.post("/ws/add_player")
+async def add_player(player: PlayerModel):
+    for game_id, game in rooms.items():
+        if game.add_player(player.name, player.balance):
+            rooms[game_id] = game
+        else: 
+            rooms[curr_id] = Game()
+            rooms[curr_id].add_player(player.name, player.balance)
+            curr_id += 1
+    return player
 
 
 
