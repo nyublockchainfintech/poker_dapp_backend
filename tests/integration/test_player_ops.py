@@ -1,4 +1,4 @@
-from poker_dapp_backend.base import Card
+from poker_dapp_backend.base import CardBase
 from poker_dapp_backend.client.players import ShufflePlayer
 
 
@@ -9,7 +9,7 @@ def test_join(two_player_game):
     """
     _, _, p1_msg1, p2_msg1 = two_player_game
 
-    cards = Card()
+    cards = CardBase()
     assert p1_msg1.get("command") == "waiting"
     assert p1_msg1.get("content") == []
 
