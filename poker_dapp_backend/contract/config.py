@@ -1,7 +1,7 @@
-from web3 import Web3
-
-
-CONTRACT_ABI = """[
+CONTRACT_ADDRESS = "0x69d7d375cdC5037c182a1eCEB5AC4C6EdE3CAD58"
+RPC_URL = "https://eth-goerli.g.alchemy.com/v2/uIErl4h1g-xMaro6OjWJqQ_N2l0i-4E0"
+CONTRACT_ABI = """
+[
     {
       "inputs": [
         {
@@ -413,21 +413,5 @@ CONTRACT_ABI = """[
       "stateMutability": "view",
       "type": "function"
     }
-  ]
+]
 """
-
-# Connect to the Ethereum node
-url = "https://eth-goerli.g.alchemy.com/v2/uIErl4h1g-xMaro6OjWJqQ_N2l0i-4E0"
-web3 = Web3(Web3.HTTPProvider(url))
-
-contract_address = "0x69d7d375cdC5037c182a1eCEB5AC4C6EdE3CAD58"
-
-# Create the contract instance
-contract = web3.eth.contract(
-    address=contract_address,
-    abi=CONTRACT_ABI,
-)
-
-# Call a function of the smart contract
-result = contract.functions.getTable(1).call()
-print(result)
