@@ -28,6 +28,13 @@ class Card(CardBase):
             str: Encoded card
         """
         return self.RANKS[self.rank.value] + self.SUITS[self.suit.value]
+    
+    @classmethod
+    def init_deck(cls):
+        """
+        Return a list of a deck of cards
+        """
+        return [Card(rank, suit) for rank, suit in product(Rank, Suit)]
 
     def __str__(self) -> str:
         return f"{self.rank.name} of {self.suit.name}"
