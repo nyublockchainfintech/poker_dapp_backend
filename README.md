@@ -51,6 +51,13 @@ Project Dependencies
   docker build .
   ```
 
+- Fresh Rebuild
+
+  ```sh
+  docker compose build --no-cache
+  docker compose up -d --build
+  ```
+
 - Setup Python virtual environment with Poetry
 
   ```sh
