@@ -28,21 +28,7 @@ def two_player_game():
 def server_create():
     with ExitStack() as stack:
         client1 = TestClient(main_app)
-        ws1 = stack.enter_context(client1.websocket_connect("/ws"))
-        msg = {
-            "MESSAGE_TYPE": "JOIN",
-            "MESSAGE": {
-                "PLAYER_ADDRESS": "0x3D4bDd0Daa396FA0b8B488FA7faF9050cb944239",
-                "USERNAME": "test",
-                "BALANCE": "100",
-                "BUY_IN": "20",
-                "BLINDS": ["10", "20"],
-            },
-        }
-        ws1.send_json(msg)
-        p1_msg = ws1.receive_json()
-
-        yield ws1, p1_msg
+        yield stack.enter_context(client1.websocket_connect("/ws"))
 
 
 @pytest.fixture
