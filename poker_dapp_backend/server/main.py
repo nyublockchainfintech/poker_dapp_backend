@@ -70,16 +70,18 @@ async def websocket_endpoint(websocket: WebSocket):
 
             elif msg_type == "JOIN":
                 game_id = room_counter
-                # FIXME: This is not from the smart contract
-                small_blind = int(msg["BLINDS"][0])
-                big_blind = int(msg["BLINDS"][1])
-                blinds = (small_blind, big_blind)
-                rooms[game_id] = Game(
-                    buy_in=msg["BUY_IN"],
-                    blinds=blinds,
-                )
-                room_counter += 1
-                room_sockets[game_id] = []
+                # NOTE: All this is is hard coded
+                small_blind = 10
+                big_blind = 20
+                blinds = (10, 20)
+
+                if rooms.get(game_id) is None:
+                    rooms[game_id] = Game(
+                        buy_in=msg["BUY_IN"],
+                        blinds=blinds,
+                    )
+                    room_counter += 1
+                    room_sockets[game_id] = []
 
                 rooms[game_id].add_player(
                     msg["PLAYER_ADDRESS"],

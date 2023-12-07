@@ -18,4 +18,3 @@ def test_join(server_create):
     p1_msg = ws1.receive_json()
     print(p1_msg)
     assert True
-
