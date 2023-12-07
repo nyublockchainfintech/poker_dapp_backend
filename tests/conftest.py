@@ -1,4 +1,6 @@
 from fastapi.testclient import TestClient
+from poker_dapp_backend.contract.connection import GameTable
+from poker_dapp_backend.contract.config import CONTRACT_ABI, RPC_URL, CONTRACT_ADDRESS
 from poker_dapp_backend.server.shuffle_main import app
 from poker_dapp_backend.server.main import app as main_app
 from contextlib import ExitStack
@@ -40,3 +42,8 @@ def server_create():
         p1_msg = ws1.receive_json()
 
         yield ws1, p1_msg
+
+
+@pytest.fixture
+def contract_connection():
+    return GameTable.connect_to_contract(RPC_URL, CONTRACT_ADDRESS, CONTRACT_ABI)
