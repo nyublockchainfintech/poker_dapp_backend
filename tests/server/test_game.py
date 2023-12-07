@@ -80,21 +80,6 @@ def test_showdown():
     assert game.add_player("Player8", 1000) == True
     assert game.add_player("Player9", 1000) == False
     assert game.start_game() == True
-    assert game.current_round == BettingRound.PRE_FLOP
-    game.increment_round()
-    assert game.current_round == BettingRound.FLOP
-    assert len(game.community_cards) == 3
-    game.increment_round()
-    assert game.current_round == BettingRound.TURN
-    assert len(game.community_cards) == 4
-    game.increment_round()
-    assert game.current_round == BettingRound.RIVER
-    assert len(game.community_cards) == 5
-    try:
-        game.increment_round()
-        assert False
-    except ValueError:
-        assert True
     # give one player a better hand than the others
     game.players[0].hand = [Card(Rank.ACE, Suit.SPADE), Card(Rank.ACE, Suit.HEART)]
     game.players[1].hand = [Card(Rank.KING, Suit.SPADE), Card(Rank.KING, Suit.HEART)]

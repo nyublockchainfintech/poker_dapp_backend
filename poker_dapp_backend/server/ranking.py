@@ -73,4 +73,7 @@ class Ranker:
         ranks = [self.rank(hand, board) for hand in hands]
 
         # return the index of the best hand
-        return ranks.index(min(ranks))
+        if len(ranks) > 1:
+            return ranks.index(min(ranks))
+        else:
+            return 0
