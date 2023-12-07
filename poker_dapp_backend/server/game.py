@@ -11,15 +11,7 @@ import json
 
 
 class Game:
-    def __init__(
-        self,
-        buy_in: int,
-        blinds: tuple[int, int],
-        players: list[Player] = [],
-        max_players: int = 8,
-    ):
-
-
+   
     def __init__(self, buy_in: int, blinds: tuple[int, int], players: list[Player] = None, max_players: int = 8):
         self.buy_in = buy_in
         self.players = players if players is not None else []
@@ -97,19 +89,6 @@ class Game:
         # make sure there's enough players to start game
         if len(self.players) < 2:
             return False
-        # increment dealer blinds if not first round
-        if self.games_played > 0:
-            self.dealer = (self.dealer + 1) % len(self.players)
-            self.current_small = (self.current_small + 1) % len(self.players)
-            self.current_big = (self.current_big + 1) % len(self.players)
-
-        # deduct blinds from players and add to pot
-        self.players[self.current_small].bet(self.small_blind)
-        self.players[self.current_big].bet(self.big_blind)
-        self.current_pot += self.small_blind + self.big_blind
-
-        # incremet games played
-        self.games_played += 1
 
         # increment blinds and dealer if not first round
         if self.games_played > 1:
@@ -119,6 +98,9 @@ class Game:
 
         # set current pot to 0
         self.current_pot = 0
+        
+        # incremet games played
+        self.games_played += 1
 
         # set all players to active that are not sitting out
         for player in self.players:
