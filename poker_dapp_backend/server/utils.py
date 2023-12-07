@@ -13,3 +13,4 @@ def connect_to_redis():
     """
     REDIS_HOST = os.getenv("REDIS_HOST") or "localhost"
     return redis.Redis(host=REDIS_HOST, port=6379, decode_responses=True)
+
