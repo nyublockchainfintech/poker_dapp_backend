@@ -1,5 +1,6 @@
-from poker_dapp_backend.server.player import Player, Blind, Status
-from poker_dapp_backend.server.dealer import Card, Rank, Suit
+from poker_dapp_backend.server.player import Player, Status
+from poker_dapp_backend.server.dealer import Card
+from pokerlib.enums import Rank, Suit
 import json
 
 def test_player_init():
@@ -10,7 +11,6 @@ def test_player_init():
     assert player.name == "test"
     assert player.balance == 100
     assert player.hand == []
-    assert player.current_blind == None
     assert player.status == None
 
 def test_player_receive_card():
@@ -35,18 +35,6 @@ def test_player_receive_card():
         assert True
     else:
         assert False
-
-def test_player_set_blind():
-    """
-    Tests the set_blind method of a Player object
-    """
-    player = Player(name="test", balance=100)
-    # test setting a blind
-    player.set_blind(Blind.SMALL_BLIND)
-    assert player.current_blind == Blind.SMALL_BLIND
-    # test setting a different blind
-    player.set_blind(Blind.BIG_BLIND)
-    assert player.current_blind == Blind.BIG_BLIND
 
 def test_player_set_status():
     """
@@ -122,7 +110,6 @@ def test_serialize():
     assert serialized_player["name"] == "test"
     assert serialized_player["balance"] == 100
     assert serialized_player["hand"] == []
-    assert serialized_player["current_blind"] == None
     assert serialized_player["status"] == None
     # test serializing a player with 1 card
     player.receive_card(Card(Rank.ACE, Suit.SPADE))
@@ -132,7 +119,6 @@ def test_serialize():
     assert serialized_player["name"] == "test"
     assert serialized_player["balance"] == 100
     assert serialized_player["hand"] == ["As"]
-    assert serialized_player["current_blind"] == None
     assert serialized_player["status"] == None
     # test serializing a player with 2 cards
     player.receive_card(Card(Rank.KING, Suit.SPADE))
@@ -142,17 +128,6 @@ def test_serialize():
     assert serialized_player["name"] == "test"
     assert serialized_player["balance"] == 100
     assert serialized_player["hand"] == ["As","Ks"]
-    assert serialized_player["current_blind"] == None
-    assert serialized_player["status"] == None
-    # test serializing a player with a blind
-    player.set_blind(Blind.SMALL_BLIND)
-    serialized_player = player.serialize()
-    print(serialized_player)
-    serialized_player = json.loads(serialized_player)
-    assert serialized_player["name"] == "test"
-    assert serialized_player["balance"] == 100
-    assert serialized_player["hand"] == ["As", "Ks"]
-    assert serialized_player["current_blind"] == "SMALL_BLIND"
     assert serialized_player["status"] == None
     # test serializing a player with a status
     player.set_status(Status.ACTIVE)
@@ -162,7 +137,6 @@ def test_serialize():
     assert serialized_player["name"] == "test"
     assert serialized_player["balance"] == 100
     assert serialized_player["hand"] == ["As", "Ks"]
-    assert serialized_player["current_blind"] == "SMALL_BLIND"
     assert serialized_player["status"] == "ACTIVE"
     
 # run this test by running the following command in the terminal:
