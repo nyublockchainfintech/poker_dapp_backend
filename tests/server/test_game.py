@@ -1,3 +1,4 @@
+import contextlib
 from poker_dapp_backend.server.game import Game
 from poker_dapp_backend.enums import BettingRound
 from poker_dapp_backend.server.player import Player, Status
@@ -45,16 +46,16 @@ def test_start_game():
 
 def test_increment_round():
     game = Game(1000, (10, 20))
-    assert game.add_player("Player1", 1000) == True
-    assert game.add_player("Player2", 1000) == True
-    assert game.add_player("Player3", 1000) == True
-    assert game.add_player("Player4", 1000) == True
-    assert game.add_player("Player5", 1000) == True
-    assert game.add_player("Player6", 1000) == True
-    assert game.add_player("Player7", 1000) == True
-    assert game.add_player("Player8", 1000) == True
-    assert game.add_player("Player9", 1000) == False
-    assert game.start_game() == True
+    assert game.add_player("Player1", 1000) is True
+    assert game.add_player("Player2", 1000) is True
+    assert game.add_player("Player3", 1000) is True
+    assert game.add_player("Player4", 1000) is True
+    assert game.add_player("Player5", 1000) is True
+    assert game.add_player("Player6", 1000) is True
+    assert game.add_player("Player7", 1000) is True
+    assert game.add_player("Player8", 1000) is True
+    assert game.add_player("Player9", 1000) is False
+    assert game.start_game() is True
     assert game.current_round == BettingRound.PRE_FLOP
     game.increment_round()
     assert game.current_round == BettingRound.FLOP
@@ -65,25 +66,23 @@ def test_increment_round():
     game.increment_round()
     assert game.current_round == BettingRound.RIVER
     assert len(game.community_cards) == 5
-    try:
+    with contextlib.suppress(ValueError):
         game.increment_round()
         assert False
-    except ValueError:
-        assert True
 
 
 def test_showdown():
     game = Game(1000, (10, 20))
-    assert game.add_player("Player1", 1000) == True
-    assert game.add_player("Player2", 1000) == True
-    assert game.add_player("Player3", 1000) == True
-    assert game.add_player("Player4", 1000) == True
-    assert game.add_player("Player5", 1000) == True
-    assert game.add_player("Player6", 1000) == True
-    assert game.add_player("Player7", 1000) == True
-    assert game.add_player("Player8", 1000) == True
-    assert game.add_player("Player9", 1000) == False
-    assert game.start_game() == True
+    assert game.add_player("Player1", 1000) is True
+    assert game.add_player("Player2", 1000) is True
+    assert game.add_player("Player3", 1000) is True
+    assert game.add_player("Player4", 1000) is True
+    assert game.add_player("Player5", 1000) is True
+    assert game.add_player("Player6", 1000) is True
+    assert game.add_player("Player7", 1000) is True
+    assert game.add_player("Player8", 1000) is True
+    assert game.add_player("Player9", 1000) is False
+    assert game.start_game() is True
     # give one player a better hand than the others
     game.players[0].hand = [Card(Rank.ACE, Suit.SPADE), Card(Rank.ACE, Suit.HEART)]
     game.players[1].hand = [Card(Rank.KING, Suit.SPADE), Card(Rank.KING, Suit.HEART)]
@@ -112,16 +111,16 @@ def test_showdown():
 
 def test_player_bet():
     game = Game(1000, (10, 20))
-    assert game.add_player("Player1", 1000) == True
-    assert game.add_player("Player2", 1000) == True
-    assert game.add_player("Player3", 1000) == True
-    assert game.add_player("Player4", 1000) == True
-    assert game.add_player("Player5", 1000) == True
-    assert game.add_player("Player6", 1000) == True
-    assert game.add_player("Player7", 1000) == True
-    assert game.add_player("Player8", 1000) == True
-    assert game.add_player("Player9", 1000) == False
-    assert game.start_game() == True
+    assert game.add_player("Player1", 1000) is True
+    assert game.add_player("Player2", 1000) is True
+    assert game.add_player("Player3", 1000) is True
+    assert game.add_player("Player4", 1000) is True
+    assert game.add_player("Player5", 1000) is True
+    assert game.add_player("Player6", 1000) is True
+    assert game.add_player("Player7", 1000) is True
+    assert game.add_player("Player8", 1000) is True
+    assert game.add_player("Player9", 1000) is False
+    assert game.start_game() is True
     assert game.current_round == BettingRound.PRE_FLOP
     game.player_bet(3, 20)
     assert game.current_pot == 50
@@ -135,16 +134,16 @@ def test_player_bet():
 
 def test_player_fold():
     game = Game(1000, (10, 20))
-    assert game.add_player("Player1", 1000) == True
-    assert game.add_player("Player2", 1000) == True
-    assert game.add_player("Player3", 1000) == True
-    assert game.add_player("Player4", 1000) == True
-    assert game.add_player("Player5", 1000) == True
-    assert game.add_player("Player6", 1000) == True
-    assert game.add_player("Player7", 1000) == True
-    assert game.add_player("Player8", 1000) == True
-    assert game.add_player("Player9", 1000) == False
-    assert game.start_game() == True
+    assert game.add_player("Player1", 1000) is True
+    assert game.add_player("Player2", 1000) is True
+    assert game.add_player("Player3", 1000) is True
+    assert game.add_player("Player4", 1000) is True
+    assert game.add_player("Player5", 1000) is True
+    assert game.add_player("Player6", 1000) is True
+    assert game.add_player("Player7", 1000) is True
+    assert game.add_player("Player8", 1000) is True
+    assert game.add_player("Player9", 1000) is False
+    assert game.start_game() is True
     assert game.current_round == BettingRound.PRE_FLOP
     game.player_fold(3)
     assert game.players[3].status == Status.FOLDED
