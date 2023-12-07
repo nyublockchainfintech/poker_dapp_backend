@@ -112,6 +112,7 @@ class Game:
                 player.set_status(Status.ACTIVE)
 
         # remove blinds from players and add to pot
+        self.active_player = self.current_small
         self.players[self.current_small].bet(self.small_blind)
         self.current_pot += self.small_blind
         self.players[self.current_big].bet(self.big_blind)
@@ -196,7 +197,11 @@ class Game:
         ), "illegal bet argument, bet not from active player"
         self.players[player_index].bet(bet_amount)
         self.current_pot += bet_amount
-        self.active_player = (self.active_player + 1) % len(self.players)
+        # loop around table once and look for next active player
+        for _ in range(len(self.players)):
+            self.active_player = (self.active_player + 1) % len(self.players)
+            if self.players[self.active_player].status == Status.ACTIVE:
+                break
 
     def player_check(self, player_index: int) -> None:
         """
@@ -209,7 +214,11 @@ class Game:
             player_index == self.active_player
         ), "illegal check argument, check not from active player"
         self.players[player_index].check()
-        self.active_player = (self.active_player + 1) % len(self.players)
+        # loop around table once and look for next active player
+        for _ in range(len(self.players)):
+            self.active_player = (self.active_player + 1) % len(self.players)
+            if self.players[self.active_player].status == Status.ACTIVE:
+                break
 
     def player_fold(self, player_index: int) -> None:
         """
@@ -222,7 +231,11 @@ class Game:
             player_index == self.active_player
         ), "illegal fold argument, check not from active player"
         self.players[player_index].fold()
-        self.active_player = (self.active_player + 1) % len(self.players)
+        # loop around table once and look for next active player
+        for _ in range(len(self.players)):
+            self.active_player = (self.active_player + 1) % len(self.players)
+            if self.players[self.active_player].status == Status.ACTIVE:
+                break
 
     def player_sitting_out(self, player_index: int) -> None:
         """
