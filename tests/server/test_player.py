@@ -3,6 +3,7 @@ from poker_dapp_backend.server.dealer import Card
 from pokerlib.enums import Rank, Suit
 import json
 
+
 def test_player_init():
     """
     Tests the initialization of a Player object
@@ -12,6 +13,7 @@ def test_player_init():
     assert player.balance == 100
     assert player.hand == []
     assert player.status == None
+
 
 def test_player_receive_card():
     """
@@ -36,6 +38,7 @@ def test_player_receive_card():
     else:
         assert False
 
+
 def test_player_set_status():
     """
     Tests the set_status method of a Player object
@@ -47,6 +50,7 @@ def test_player_set_status():
     # test setting a different status
     player.set_status(Status.FOLDED)
     assert player.status == Status.FOLDED
+
 
 def test_player_hand_to_string():
     """
@@ -61,6 +65,7 @@ def test_player_hand_to_string():
     # test converting a hand with 2 cards to a string
     player.receive_card(Card(Rank.KING, Suit.SPADE))
     assert player.hand_to_string() == "As Ks"
+
 
 def test_bet():
     """
@@ -82,6 +87,7 @@ def test_bet():
     else:
         assert False
 
+
 def test_fold():
     """
     Tests the fold method of a Player object
@@ -97,6 +103,7 @@ def test_fold():
     player.receive_card(Card(Rank.KING, Suit.SPADE))
     player.fold()
     assert player.hand == []
+
 
 def test_serialize():
     """
@@ -128,7 +135,9 @@ def test_serialize():
     assert serialized_player["name"] == "test"
     assert serialized_player["balance"] == 100
     assert serialized_player["hand"] == ["As","Ks"]
+    assert serialized_player["hand"] == ["As", "Ks"]
     assert serialized_player["status"] == None
+
     # test serializing a player with a status
     player.set_status(Status.ACTIVE)
     serialized_player = player.serialize()
@@ -138,6 +147,7 @@ def test_serialize():
     assert serialized_player["balance"] == 100
     assert serialized_player["hand"] == ["As", "Ks"]
     assert serialized_player["status"] == "ACTIVE"
-    
+
+
 # run this test by running the following command in the terminal:
 # python -m pytest tests/server/test_player.py

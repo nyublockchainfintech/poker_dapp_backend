@@ -3,7 +3,7 @@ import base64
 import random
 from typing import Dict, List
 
-from poker_dapp_backend.base import Cards
+from poker_dapp_backend.base import Card
 from .encryption import symencrypt
 from poker_dapp_backend.enums import (
     ClientResponse,
@@ -11,7 +11,11 @@ from poker_dapp_backend.enums import (
 )
 
 
-class PlayerBase(Cards):
+class PlayerBase(Card):
+    def __init__(self) -> None:
+        self.identical_keys = [self.keygen1(length=256)] * 52
+        self.unique_keys = self.keygen2(length=256)
+
     def seed_gen(self, size=1000000) -> int:
         """
         Generate a random seed of the given size
@@ -34,9 +38,7 @@ class PlayerBase(Cards):
         Returns:
             str: Random key of the given length
         """
-        # Generate a secure random number of the given bit length
         key = secrets.randbits(length)
-        # Convert to binary format and remove the '0b' prefix
         binary_key = bin(key)[2:].zfill(length)
         return binary_key
 
@@ -52,28 +54,24 @@ class PlayerBase(Cards):
             List[str]: List of random keys of the given length
         """
         keys = set()
-
         while len(keys) < n:
             new_key = self.keygen1(length)
             keys.add(new_key)
-
         return list(keys)
 
 
-class Player(PlayerBase):
+class ShufflePlayer(PlayerBase):
     def __init__(self, websocket_server) -> None:
         self.websocket = websocket_server
         self.command: ClientResponse | DealerResponse = ClientResponse.DOING_NOTHING
         self.cards: List[bytes] = []
         self.shuffle_seed = self.seed_gen(size=1000000)
-        self.identical_keys = [self.keygen1(length=256)] * 52
-        self.unique_keys = self.keygen2(length=256)
+        super().__init__()
 
     def shuffle_deck(self):
         """
         Shuffle the entire deck of cards
         """
-        # Shuffle with seed
         random.seed(self.shuffle_seed)
         random.shuffle(self.cards)
 
@@ -96,7 +94,7 @@ class Player(PlayerBase):
         Returns:
             List[bytes]: List of cards converted to bytes
         """
-        if set(cards) == set(self.init_deck()):
+        if set(cards) == set(self.init_deck()):  # Cards is naked deck
             return [card.encode("utf-8") for card in cards]
         else:
             return [base64.b64decode(card) for card in cards]
@@ -123,12 +121,8 @@ class Player(PlayerBase):
         Args:
             data (Dict): Server response
         """
-        try:
-            self.command = data["command"]
-            self.cards = self.string_to_bytes_list(data["content"])
-        except KeyError as e:
-            raise ValueError(f"Invalid data format: {e}")
-        return self
+        self.command = data["command"]
+        self.cards = self.string_to_bytes_list(data["content"])
 
     def encrypt_deck(self, cards=None, individually=False, keys=None) -> List[bytes]:
         """
@@ -161,45 +155,35 @@ class Player(PlayerBase):
         Returns:
             List[str]: List of decrypted cards
         """
-        # NOTE: Symmetric encryption is reversible
-        return self.encrypt_deck(individually=individually, keys=keys)
+        return self.encrypt_deck(cards=cards, individually=individually, keys=keys)
 
-    # FIXME: Currently broken
-    async def reply(self, message: dict):
+    def reply(self):
         """
         Reply to the server with the correct response
         """
-        if message is None:
-            raise ValueError("No message received")
-
-        # string to json
         try:
-            command = message["command"]
-            self.cards = message["content"]
-            if command == DealerResponse.SHUFFLE:
+            if self.command == DealerResponse.WAIT:
                 pass
-            elif command == DealerResponse.DECRYPT:
-                pass
-            elif command == DealerResponse.DEAL:
-                pass
-            elif command == DealerResponse.KEYS:
-                pass
-            else:
-                # Handle unknown or unsupported commands
-                pass
-        except KeyError:
-            # TODO: Replace this with error handler
-            raise KeyError("Invalid data format")
+            elif self.command == DealerResponse.SHUFFLE:
+                self.encrypt_deck()
+                self.shuffle_deck()
+            elif self.command == DealerResponse.DECRYPT:
+                self.decrypt_deck()
+                self.encrypt_deck(individually=True)
+        except KeyError as e:
+            raise KeyError(f"Invalid command: {e}")
+        return self.serialize()
 
-    # async def send_to_server(self, response_type: ClientResponse):
-    #     """
-    #     Send a message to the server with the given response type
-    #     """
-    #     message = json.dumps(
-    #         {
-    #             "status": WebSocketStatus.SUCCESS.value,
-    #             "command": response_type.value,
-    #             "content": self.output,
-    #         }
-    #     )
-    #     await self.websocket.send(message)
+
+class GamePlayer(PlayerBase):
+    def __init__(self) -> None:
+        super().__init__()
+
+    def send_key(self) -> str:
+        """
+        Pop the latest key from the list of unique keys for dealing
+
+        Returns:
+            str: Latest key
+        """
+        return self.unique_keys.pop()

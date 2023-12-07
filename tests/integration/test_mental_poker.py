@@ -1,8 +1,7 @@
-from poker_dapp_backend.base import Cards
-from poker_dapp_backend.client.players import Player
+from poker_dapp_backend.base import Card
+from poker_dapp_backend.client.players import ShufflePlayer
 
 
-# FIXME: Tests not passing
 def test_shuffle_encrypt(two_player_game):
     """
     Test the first stage of mental poker where:
@@ -13,8 +12,8 @@ def test_shuffle_encrypt(two_player_game):
     """
     ws1, ws2, _, p2_msg1 = two_player_game
 
-    p2 = Player(ws2)
-    p1 = Player(ws1)
+    p2 = ShufflePlayer(ws2)
+    p1 = ShufflePlayer(ws1)
 
     # SHUFFLE & ENCRYPT
 
