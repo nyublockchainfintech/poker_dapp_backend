@@ -9,10 +9,14 @@ from random import shuffle as default_shuffle
 import json
 
 
-
 class Game:
-   
-    def __init__(self, buy_in: int, blinds: tuple[int, int], players: list[Player] = None, max_players: int = 8):
+    def __init__(
+        self,
+        buy_in: int,
+        blinds: tuple[int, int],
+        players: list[Player] = None,
+        max_players: int = 8,
+    ):
         self.buy_in = buy_in
         self.players = players if players is not None else []
         self.community_cards = []
@@ -55,7 +59,7 @@ class Game:
         player.set_status(Status.ACTIVE)
         self.players.append(player)
         return True
-    
+
     def remove_player(self, name: str) -> bool:
         """
         Removes a player from the game
@@ -76,7 +80,7 @@ class Game:
                 self.players.remove(player)
                 return True
         return False
-    
+
     def start_game(self) -> bool:
         """
         Starts the game by assigning blinds, dealing cards, and setting current_round and current_player
@@ -98,7 +102,7 @@ class Game:
 
         # set current pot to 0
         self.current_pot = 0
-        
+
         # incremet games played
         self.games_played += 1
 
@@ -117,7 +121,9 @@ class Game:
         self.active_player = (self.current_big + 1) % len(self.players)
 
         # initialize deck and shuffle
-        self.deck: list = self.card_obj.init_deck() # typehint so VSCode stops being annoying
+        self.deck: list = (
+            self.card_obj.init_deck()
+        )  # typehint so VSCode stops being annoying
         default_shuffle(self.deck)
 
         # deal cards
@@ -135,7 +141,7 @@ class Game:
         """
         if self.current_round == BettingRound.RIVER:
             raise ValueError("Can't go to next round, it is the river")
-            
+
         if self.current_round == BettingRound.PRE_FLOP:
             self.current_round = BettingRound.FLOP
         elif self.current_round == BettingRound.FLOP:
@@ -167,7 +173,7 @@ class Game:
                 hands.append(player.hand)
                 player_indexes.append(counter)
             counter += 1
-            
+
         # get winner index
         self.winner = player_indexes[self.ranker.best_hand(hands, self.community_cards)]
         # distribute pot
@@ -176,7 +182,6 @@ class Game:
         # empty hands
         for player in self.players:
             player.hand = []
-
 
     def player_bet(self, player_index: int, bet_amount: int) -> None:
         """
@@ -242,7 +247,7 @@ class Game:
             self.players[player_index].status == Status.SITTING_OUT
         ), "illegal return argument, player not sitting out"
         self.players[player_index].rejoin()
-    
+
     def get_index_from_name(self, name: str) -> int:
         """
         Gets the index of a player given their name
@@ -275,7 +280,7 @@ class Game:
             "current_small_index": self.current_small,
             "current_big_index": self.current_big,
             "active_player_index": self.active_player,
-            "current_round": self.current_round,
+            "current_round": self.current_round.name,
             "current_pot": self.current_pot,
             "max_players": self.max_players,
             "games_played": self.games_played,

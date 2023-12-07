@@ -4,6 +4,8 @@ services:
   api:
     build: .
     container_name: fastapi-poker
+    environment:
+      REDIS_HOST: redisdb
     ports:
       - 8000:8000
     volumes:

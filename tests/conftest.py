@@ -1,5 +1,5 @@
 from fastapi.testclient import TestClient
-from poker_dapp_backend.server.main import app  # Import your FastAPI app
+from poker_dapp_backend.server.shuffle_main import app
 from contextlib import ExitStack
 
 import pytest

@@ -14,9 +14,10 @@ app = FastAPI()
 
 connected_players = set()
 
-rooms = collections.defaultdict(Game) #id:game
+rooms = collections.defaultdict(Game)  # id:game
 
-rooms = {1:Game(buy_in=20, blinds=[20, 30]), 2:Game(buy_in=10, blinds=[20, 30])}
+rooms = {1: Game(buy_in=20, blinds=[20, 30]), 2: Game(buy_in=10, blinds=[20, 30])}
+
 
     
 class PlayerRoomModel(BaseModel):
@@ -50,7 +51,8 @@ class UpdateProfileModel(BaseModel):
 
 @app.get("/ws/rooms/{game_id}")
 async def get_game(game_id: int):
-    return {  rooms[game_id].serialize() }
+    return {rooms[game_id].serialize()}
+
 
  
 @app.get("/ws/all_rooms")
@@ -105,7 +107,7 @@ async def update_profile(new_player: UpdateProfileModel):
 #     for game_id, game in rooms.items():
 #         if game.add_player(player.name, player.balance):
 #             rooms[game_id] = game
-#         else: 
+#         else:
 #             rooms[curr_id] = Game()
 #             rooms[curr_id].add_player(player.name, player.balance)
 #             curr_id += 1

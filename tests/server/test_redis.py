@@ -3,21 +3,13 @@ from poker_dapp_backend.server.utils import connect_to_redis
 
 
 def setup(self):
-    # Initialize Redis connection
     self.redis = connect_to_redis()
-
-    # Reset the counter for consistency
     self.counter = 0
-
-    # Clear any existing game state data from Redis to start fresh
     self.redis.delete("game_state")
 
 
 def teardown(self):
-    # Clear the game state data from Redis after tests
     self.redis.delete("game_state")
-
-    # Close the Redis connection if needed
     self.redis.close()
 
 
