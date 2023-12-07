@@ -107,12 +107,16 @@ class Game:
         # set current pot to 0
         self.current_pot = 0
 
+        # set current bet to 0
+        self.current_bet = 0
+
         # incremet games played
         self.games_played += 1
 
+        # set number of inactive players to 0
         self.num_inactive = 0
         
-        # set all players to active that are not sitting out
+        # set all players to active that are not sitting out, increase inactive count if sitting out
         for player in self.players:
             if player.status != Status.SITTING_OUT:
                 player.set_status(Status.ACTIVE)
@@ -152,6 +156,9 @@ class Game:
         if self.num_inactive == len(self.players) - 1:
             self.showdown()
             return
+        
+        # set current bet to 0
+        self.current_bet = 0
 
         # increment round
         if self.current_round == BettingRound.PRE_FLOP:
