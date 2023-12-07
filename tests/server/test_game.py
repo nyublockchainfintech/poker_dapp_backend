@@ -158,16 +158,16 @@ def test_player_fold():
 
 def test_player_check():
     game = Game(1000, (10, 20))
-    assert game.add_player("Player1", 1000) == True
-    assert game.add_player("Player2", 1000) == True
-    assert game.add_player("Player3", 1000) == True
-    assert game.add_player("Player4", 1000) == True
-    assert game.add_player("Player5", 1000) == True
-    assert game.add_player("Player6", 1000) == True
-    assert game.add_player("Player7", 1000) == True
-    assert game.add_player("Player8", 1000) == True
-    assert game.add_player("Player9", 1000) == False
-    assert game.start_game() == True
+    assert game.add_player("Player1", 1000) is True
+    assert game.add_player("Player2", 1000) is True
+    assert game.add_player("Player3", 1000) is True
+    assert game.add_player("Player4", 1000) is True
+    assert game.add_player("Player5", 1000) is True
+    assert game.add_player("Player6", 1000) is True
+    assert game.add_player("Player7", 1000) is True
+    assert game.add_player("Player8", 1000) is True
+    assert game.add_player("Player9", 1000) is False
+    assert game.start_game() is True
     assert game.current_round == BettingRound.PRE_FLOP
     game.player_check(3)
     assert game.active_player == 4
@@ -180,7 +180,7 @@ def test_player_check():
 
 def test_player_sitting_out():
     game = Game(1000, (10, 20))
-    assert game.add_player("Player1", 1000) == True
+    assert game.add_player("Player1", 1000) is True
     game.player_sitting_out(0)
     assert game.players[0].status == Status.SITTING_OUT
     game.player_returns(0)
