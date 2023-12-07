@@ -1,4 +1,4 @@
-CONTRACT_ADDRESS = "0x69d7d375cdC5037c182a1eCEB5AC4C6EdE3CAD58"
+CONTRACT_ADDRESS = "0xc8fb187b2aD04dc6670768eb7DC903fb302f1D01"
 RPC_URL = "https://eth-goerli.g.alchemy.com/v2/uIErl4h1g-xMaro6OjWJqQ_N2l0i-4E0"
 CONTRACT_ABI = """
 [
@@ -55,6 +55,87 @@ CONTRACT_ABI = """
       ],
       "name": "TableCreated",
       "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "_currId",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "_numPurgedGames",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getAllTables",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "minBuyIn",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint8",
+              "name": "playerLimit",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint8",
+              "name": "playerCount",
+              "type": "uint8"
+            },
+            {
+              "internalType": "bool",
+              "name": "inPlay",
+              "type": "bool"
+            },
+            {
+              "internalType": "address",
+              "name": "initiator",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amountInPlay",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address[10]",
+              "name": "players",
+              "type": "address[10]"
+            }
+          ],
+          "internalType": "struct Poker.Table[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
     },
     {
       "inputs": [

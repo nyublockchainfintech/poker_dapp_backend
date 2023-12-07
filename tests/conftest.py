@@ -1,5 +1,5 @@
 from fastapi.testclient import TestClient
-from poker_dapp_backend.contract.connection import GameTable
+from poker_dapp_backend.contract.connection import PokerGameTables
 from poker_dapp_backend.contract.config import CONTRACT_ABI, RPC_URL, CONTRACT_ADDRESS
 from poker_dapp_backend.server.shuffle_main import app
 from poker_dapp_backend.server.main import app as main_app
@@ -30,9 +30,10 @@ def server_create():
         client1 = TestClient(main_app)
         ws1 = stack.enter_context(client1.websocket_connect("/ws"))
         msg = {
-            "MESSAGE TYPE": "CREATE",
+            "MESSAGE_TYPE": "JOIN",
             "MESSAGE": {
-                "PLAYER_NAME": "John Doe",
+                "PLAYER_ADDRESS": "0x3D4bDd0Daa396FA0b8B488FA7faF9050cb944239",
+                "USERNAME": "test",
                 "BALANCE": "100",
                 "BUY_IN": "20",
                 "BLINDS": ["10", "20"],
@@ -46,4 +47,4 @@ def server_create():
 
 @pytest.fixture
 def contract_connection():
-    return GameTable.connect_to_contract(RPC_URL, CONTRACT_ADDRESS, CONTRACT_ABI)
+    return PokerGameTables.connect_to_contract(RPC_URL, CONTRACT_ADDRESS, CONTRACT_ABI)

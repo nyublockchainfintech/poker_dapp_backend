@@ -1,10 +1,11 @@
 from typing import Dict
+from poker_dapp_backend.contract.config import CONTRACT_ABI, RPC_URL, CONTRACT_ADDRESS
+from poker_dapp_backend.server.utils import DictToObject
 from fastapi import FastAPI, WebSocket
 from starlette.websockets import WebSocketDisconnect
+from poker_dapp_backend.contract.connection import PokerGameTables
 from poker_dapp_backend.server.game import Game
-import collections
 from pydantic import BaseModel
-from poker_dapp_backend.server.game import Game
 import json
 
 
@@ -30,13 +31,24 @@ async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     connected_players.add(websocket)
     room_counter = 0
+    game_table = PokerGameTables.connect_to_contract(
+        RPC_URL, CONTRACT_ADDRESS, CONTRACT_ABI
+    )
     try:
         while True:
+            # Process incoming JSON message
             data = await websocket.receive_json()
-            msg_type = data.get("MESSAGE_TYPE", None)
-            msg = data.get("MESSAGE", None)
-            game_id = msg.get("GAME_ID", None)
-            
+            msg_type = data["MESSAGE_TYPE"]
+            msg = data["MESSAGE"]
+
+            # Assign players to rooms and store table metadata
+            tables = game_table.get_all_tables()
+            game_table.deserialize_all_tables(tables)
+
+            # Find the game id for the player
+            game_id = game_table.get_player_game_id(msg)
+            # game_id = 0
+
             # Process different message types
             if msg_type == "ACTION":
                 player_index = rooms[game_id].get_player_index(msg["PLAYER NAME"])
@@ -50,16 +62,28 @@ async def websocket_endpoint(websocket: WebSocket):
                     case "FOLD":
                         rooms[game_id].player_fold(player_index)
 
-                    case _: 
+                    case _:
                         raise ValueError("Invalid action")
 
             elif msg_type == "START_GAME":
                 rooms[game_id].start_game()
 
             elif msg_type == "JOIN":
+                game_id = room_counter
+                # FIXME: This is not from the smart contract
+                small_blind = int(msg["BLINDS"][0])
+                big_blind = int(msg["BLINDS"][1])
+                blinds = (small_blind, big_blind)
+                rooms[game_id] = Game(
+                    buy_in=msg["BUY_IN"],
+                    blinds=blinds,
+                )
+                room_counter += 1
+                room_sockets[game_id] = []
+
                 rooms[game_id].add_player(
-                    msg["PLAYER_NAME"],
-                    msg["PLAYER_BALANCE"],
+                    msg["PLAYER_ADDRESS"],
+                    msg["BALANCE"],
                 )
                 room_sockets[game_id].append(websocket)
 
@@ -87,4 +111,3 @@ async def websocket_endpoint(websocket: WebSocket):
     except WebSocketDisconnect:
         connected_players.remove(websocket)
         print(f"Client {websocket} disconnected")
-
