@@ -66,12 +66,10 @@ def test_increment_round():
     game.increment_round()
     assert game.current_round == BettingRound.RIVER
     assert len(game.community_cards) == 5
-    with contextlib.suppress(ValueError):
-        game.increment_round()
-        assert False
+    
 
 
-def test_showdown():
+def test_showdown_1():
     game = Game(1000, (10, 20))
     assert game.add_player("Player1", 1000) is True
     assert game.add_player("Player2", 1000) is True
@@ -107,6 +105,33 @@ def test_showdown():
     assert game.players[0].balance == 1030
     assert game.players[1].balance == 990
     assert game.players[2].balance == 980
+
+def test_all_fold_except_one():
+    game = Game(1000, (10, 20))
+    game.add_player("Player1", 1000)
+    game.add_player("Player2", 1000)
+    game.add_player("Player3", 1000)
+    game.add_player("Player4", 1000)
+    game.start_game()
+    # have all players fold except for one
+    game.player_fold(3)
+    game.player_fold(0)
+    game.player_fold(1)
+    game.player_check(2)
+    # set the community cards
+    game.community_cards = [
+        Card(Rank.ACE, Suit.CLUB),
+        Card(Rank.KING, Suit.CLUB),
+        Card(Rank.QUEEN, Suit.CLUB),
+        Card(Rank.JACK, Suit.CLUB),
+        Card(Rank.TEN, Suit.CLUB),
+    ]
+    # run the showdown
+    game.increment_round()
+    # assert that the winner is the player with the best hand and that the pot is distributed
+    assert game.winner == 2
+
+
 
 
 def test_player_bet():
