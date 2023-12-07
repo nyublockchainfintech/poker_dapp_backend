@@ -35,6 +35,10 @@ class Game:
         self.games_played = 0
         self.winner = None
         self.counter = 0
+        self.action_count = 0
+        self.num_inactive = 0
+        self.check_before = False
+        self.current_bet = 0
 
     def add_player(self, name: str, starting_balance: int) -> bool:
         """
@@ -106,10 +110,14 @@ class Game:
         # incremet games played
         self.games_played += 1
 
+        self.num_inactive = 0
+        
         # set all players to active that are not sitting out
         for player in self.players:
             if player.status != Status.SITTING_OUT:
                 player.set_status(Status.ACTIVE)
+            else:
+                self.num_inactive += 1
 
         # remove blinds from players and add to pot
         self.active_player = self.current_small
@@ -140,15 +148,21 @@ class Game:
         """
         Increments to next betting round
         """
-        if self.current_round == BettingRound.RIVER:
-            raise ValueError("Can't go to next round, it is the river")
+        # if everyone but one player has folded, give them the pot and end the game
+        if self.num_inactive == len(self.players) - 1:
+            self.showdown()
+            return
 
+        # increment round
         if self.current_round == BettingRound.PRE_FLOP:
             self.current_round = BettingRound.FLOP
         elif self.current_round == BettingRound.FLOP:
             self.current_round = BettingRound.TURN
         elif self.current_round == BettingRound.TURN:
             self.current_round = BettingRound.RIVER
+        elif self.current_round == BettingRound.RIVER:
+            self.showdown()
+            return
 
         # if it's the flop, deal 3 cards
         if self.current_round == BettingRound.FLOP:
@@ -172,6 +186,10 @@ class Game:
         """
         Determines the winner of the game and sets the winner index and distributes pot
         """
+        
+        # set current round to finished
+        self.current_round = BettingRound.FINISHED
+
         # get all hands if the player is not folded
         hands = []
         player_indexes = []
@@ -191,6 +209,7 @@ class Game:
         for player in self.players:
             player.hand = []
 
+
     def player_bet(self, player_index: int, bet_amount: int) -> None:
         """
         Adjusts game state when a player submits a bet
@@ -203,12 +222,24 @@ class Game:
             player_index == self.active_player
         ), "illegal bet argument, bet not from active player"
         self.players[player_index].bet(bet_amount)
+        self.action_count += 1
         self.current_pot += bet_amount
+        # if the someone has checked before, reset check_before and reset action_count to 1
+        if self.check_before:
+            self.check_before = False
+            self.action_count = 1
+        # if this is a raise, reset action_count to 1
+        if bet_amount > self.current_bet:
+            self.current_bet = bet_amount
+            self.action_count = 1
         # loop around table once and look for next active player
         for _ in range(len(self.players)):
             self.active_player = (self.active_player + 1) % len(self.players)
             if self.players[self.active_player].status == Status.ACTIVE:
                 break
+        if self.action_count == len(self.players) - self.num_inactive:
+            self.increment_round()
+            self.action_count = 0
 
     def player_check(self, player_index: int) -> None:
         """
@@ -221,11 +252,16 @@ class Game:
             player_index == self.active_player
         ), "illegal check argument, check not from active player. check was from player: " + str(player_index) + " active player is: " + str(self.active_player)
         self.players[player_index].check()
+        self.check_before = True
+        self.action_count += 1
         # loop around table once and look for next active player
         for _ in range(len(self.players)):
             self.active_player = (self.active_player + 1) % len(self.players)
             if self.players[self.active_player].status == Status.ACTIVE:
                 break
+        if self.action_count == len(self.players) - self.num_inactive:
+            self.increment_round()
+            self.action_count = 0
 
     def player_fold(self, player_index: int) -> None:
         """
@@ -238,11 +274,16 @@ class Game:
             player_index == self.active_player
         ), "illegal fold argument, check not from active player"
         self.players[player_index].fold()
+        self.action_count += 1
+        self.num_inactive += 1
         # loop around table once and look for next active player
         for _ in range(len(self.players)):
             self.active_player = (self.active_player + 1) % len(self.players)
             if self.players[self.active_player].status == Status.ACTIVE:
                 break
+        if self.action_count == len(self.players) - self.num_inactive:
+            self.increment_round()
+            self.action_count = 0
 
     def player_sitting_out(self, player_index: int) -> None:
         """
