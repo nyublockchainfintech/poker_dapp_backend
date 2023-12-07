@@ -18,6 +18,7 @@ rooms = collections.defaultdict(Game)  # id:game
 
 rooms = {1: Game(buy_in=20, blinds=[20, 30]), 2: Game(buy_in=10, blinds=[20, 30])}
 
+# rooms = {1:Game(buy_in=20, blinds=[20, 30]), 2:Game(buy_in=10, blinds=[20, 30])}
 
     
 class PlayerRoomModel(BaseModel):
@@ -26,28 +27,51 @@ class PlayerRoomModel(BaseModel):
     balance: int
     hand: list
     status: int 
+    
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    connected_players.add(websocket)
+    try:
+        while True:
+            data = await websocket.receive_json()
+            game_id = data["MESSAGE"]["GAME ID"]
+            # Process different message types
+            if data["MESSAGE TYPE"] == "BET":
+                rooms[game_id].bet(data["PLAYER ID"], data["AMOUNT"])
 
-class UpdateProfileModel(BaseModel):
-    game_id: int
-    old_name: str
-    new_name: str
+            elif data["MESSAGE TYPE"] == "JOIN":
+                rooms[game_id].add_player(data["MESSAGE"]["PLAYER NAME"], data["MESSAGE"]["PLAYER BALANCE"])
 
+            elif data["MESSAGE TYPE"] == "CREATE":
+                rooms[game_id] = Game(buy_in=data["MESSAGE"]["BUY IN"], blinds=data["MESSAGE"]["BLINDS"])
 
-# TODO: Add join confirmation when a player joins the game
-# @app.websocket("/ws")
-# async def websocket_endpoint(websocket: WebSocket):
-#     await websocket.accept()
-#     connected_players.add(websocket)
-#     dealer = Dealer(connected_players)
-#     try:
-#         while True:
-#             data = await websocket.receive_json()
-#             print("Data received from a client:", data)
-#             # Broadcast received data to all connected clients
-#             await dealer.reply(data)
-#     except WebSocketDisconnect:
-#         connected_players.remove(websocket)
-#         print(f"Client {websocket} disconnected")
+            # Broadcast received data to all connected clients
+            for ws in connected_players:
+                await ws.send_json(data)  # Modify as needed for broadcasting
+
+    except WebSocketDisconnect:
+        connected_players.remove(websocket)
+        print(f"Client {websocket} disconnected")
+
+@app.post("/ws/start_game/{game_id}")
+async def start_game(game_id: int):
+    if game_id not in rooms:
+        return {"error": "Game not found"}
+
+    game = rooms[game_id]
+    if not game.start_game():
+        return {"error": "Cannot start game"}
+
+    return {"message": "Game started", "game_state": game.serialize()}
+
+#create a new game
+@app.get("/ws/new_game/{buy_in}/{small_blind}/{big_blind}")
+async def new_game(buy_in: int, small_blind: int, big_blind: int):
+    global curr_id
+    rooms[curr_id] = Game(buy_in=buy_in, blinds=[small_blind, big_blind])
+    curr_id += 1
+    return {"message": "Game created", "game_id": curr_id - 1}
 
 @app.get("/ws/rooms/{game_id}")
 async def get_game(game_id: int):
@@ -56,59 +80,28 @@ async def get_game(game_id: int):
 
  
 @app.get("/ws/all_rooms")
-async def get_games():
-    curr_games = ""
-
+async def get_game():
+    global curr_games
     for game_id, _ in rooms.items():
         curr_games += rooms[game_id].serialize()
 
     return {  curr_games }
 
-@app.post("/ws/join_room")
-async def join_room(player: PlayerRoomModel):
-    # TODO CHECK REDIS IF NAME ALREADY EXISTS
+@app.post("/ws/add_player")
+async def add_player(player: PlayerModel):
+    for game_id, game in rooms.items():
+        if game.add_player(player.name, player.balance):
+            rooms[game_id] = game
+        else: 
+            rooms[curr_id] = Game()
+            rooms[curr_id].add_player(player.name, player.balance)
+            curr_id += 1
+    return player
 
-    if len(rooms[player.game_id].players) == rooms[player.game_id].max_players:
-        return { "Game is full, join another room" }
 
-    else:
-        rooms[player.game_id].add_player(player.name, player.balance)
-        return { rooms[player.game_id].serialize() }
 
-# TODO: Add game.remove()
-@app.post("/ws/leave_room")
-# async def leave_room(player: PlayerRoomModel):
-#     rooms[player.game_id].remove(player.name)
 
-#     return { rooms[player.game_id].serialize() } 
 
-@app.post("/ws/update_profile")
-async def update_profile(new_player: UpdateProfileModel):
-    # TODO CHECK REDIS IF OLD NAME ALREADY EXISTS
 
-    for player in rooms[new_player.game_id].players:
-        if player.name == new_player.old_name:
-            player.name = new_player.new_name
 
-    return { rooms[new_player.game_id].serialize() } 
-   
 
-# class PlayerModel(BaseModel):
-#     name: str
-#     balance: int
-#     hand: list
-#     status: int 
-
-# curr_id = 1
-
-# Function to add player to whatever the open room is 
-# @app.post("/ws/add_player")
-# async def add_player(player: PlayerModel):
-#     for game_id, game in rooms.items():
-#         if game.add_player(player.name, player.balance):
-#             rooms[game_id] = game
-#         else:
-#             rooms[curr_id] = Game()
-#             rooms[curr_id].add_player(player.name, player.balance)
-#             curr_id += 1
-#     return { player }
