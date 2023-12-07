@@ -92,3 +92,8 @@ Game State
   from the client side. They send a signed snapshot (signed by everyone) of the
   last valid game balances
 - I have to track the game state separately
+
+## Game Logic
+
+- Every time a player joins, the server calls the smart contract to get any new
+  room information.
