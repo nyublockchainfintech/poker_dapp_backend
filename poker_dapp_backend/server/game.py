@@ -199,6 +199,12 @@ class Game:
 
         # if one player left, give them the pot and return
         if self.num_inactive == len(self.players) - 1:
+            for player in self.players:
+                if player.status != Status.FOLDED and player.status != Status.SITTING_OUT:
+                    self.winner = self.players.index(player)
+                    self.players[self.winner].balance += self.current_pot
+                    self.current_pot = 0
+                    return
 
         # get all hands if the player is not folded
         hands = []
