@@ -106,6 +106,30 @@ def test_showdown_1():
     assert game.players[1].balance == 990
     assert game.players[2].balance == 980
 
+    game.start_game()
+    # give one player a better hand than the others
+    game.players[1].hand = [Card(Rank.ACE, Suit.SPADE), Card(Rank.ACE, Suit.HEART)]
+    game.players[0].hand = [Card(Rank.KING, Suit.SPADE), Card(Rank.KING, Suit.HEART)]
+    game.players[2].hand = [Card(Rank.QUEEN, Suit.SPADE), Card(Rank.QUEEN, Suit.HEART)]
+    game.players[3].hand = [Card(Rank.JACK, Suit.SPADE), Card(Rank.JACK, Suit.HEART)]
+    game.players[4].hand = [Card(Rank.TEN, Suit.SPADE), Card(Rank.TEN, Suit.HEART)]
+    game.players[5].hand = [Card(Rank.NINE, Suit.SPADE), Card(Rank.NINE, Suit.HEART)]
+    game.players[6].hand = [Card(Rank.EIGHT, Suit.SPADE), Card(Rank.EIGHT, Suit.HEART)]
+    game.players[7].hand = [Card(Rank.SEVEN, Suit.SPADE), Card(Rank.SEVEN, Suit.HEART)]
+    # set the community cards
+    game.community_cards = [
+        Card(Rank.ACE, Suit.CLUB),
+        Card(Rank.KING, Suit.CLUB),
+        Card(Rank.QUEEN, Suit.CLUB),
+        Card(Rank.JACK, Suit.CLUB),
+        Card(Rank.TEN, Suit.CLUB),
+    ]
+    # run the showdown
+    game.showdown()
+    # assert that the winner is the player with the best hand and that the pot is distributed
+    assert game.winner == 1
+
+
 def test_all_fold_except_one():
     game = Game(1000, (10, 20))
     game.add_player("Player1", 1000)
@@ -130,9 +154,6 @@ def test_all_fold_except_one():
     game.increment_round()
     # assert that the winner is the player with the best hand and that the pot is distributed
     assert game.winner == 2
-
-
-
 
 def test_player_bet():
     game = Game(1000, (10, 20))

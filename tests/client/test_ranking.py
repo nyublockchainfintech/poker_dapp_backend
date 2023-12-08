@@ -30,3 +30,40 @@ def test_ranker():
         Card(Rank.TEN, Suit.SPADE),
     ]
     assert ranker.rank(hand, community_cards) == 2
+
+    hand_1 = [
+        Card(Rank.ACE, Suit.SPADE),
+        Card(Rank.KING, Suit.SPADE),
+    ]
+    hand_2 = [
+        Card(Rank.ACE, Suit.HEART),
+        Card(Rank.KING, Suit.HEART),
+    ]
+    community_cards = [
+        Card(Rank.QUEEN, Suit.SPADE),
+        Card(Rank.JACK, Suit.SPADE),
+        Card(Rank.TEN, Suit.SPADE),
+    ]
+    best_hand = ranker.best_hand([hand_1, hand_2], community_cards)
+    assert best_hand == 0
+
+    hand_1 = [
+        Card(Rank.ACE, Suit.SPADE),
+        Card(Rank.KING, Suit.SPADE),
+    ]
+    hand_2 = [
+        Card(Rank.ACE, Suit.HEART),
+        Card(Rank.KING, Suit.HEART),
+    ]
+    hand_3 = [
+        Card(Rank.ACE, Suit.DIAMOND),
+        Card(Rank.KING, Suit.DIAMOND),
+    ]
+    # community card for 3 to get a flush
+    community_cards = [
+        Card(Rank.QUEEN, Suit.DIAMOND),
+        Card(Rank.JACK, Suit.DIAMOND),
+        Card(Rank.TEN, Suit.DIAMOND),
+    ]
+    best_hand = ranker.best_hand([hand_1, hand_2, hand_3], community_cards)
+    assert best_hand == 2
