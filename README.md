@@ -64,7 +64,7 @@ Project Dependencies
    poetry config virtualenvs.in-project true # Make poetry use local .venv folder
    poetry install # Install dependencies
    source .venv/bin/activate # Activate virtual environment in zsh
-   source .venv/bin/activate.[fish|csh] # For other shell types
+   source .venv/bin/activate.[fish|csh]
   ```
 
 - Save dependencies to requirements.txt
