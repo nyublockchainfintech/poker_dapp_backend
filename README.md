@@ -20,9 +20,11 @@ Project Dependencies
    ```
 
 2. Install dependencies
+
    ```sh
    poetry install
    ```
+
 3. Start Development Web Server
 
    Local Deployment
@@ -63,7 +65,7 @@ Project Dependencies
   ```sh
    poetry config virtualenvs.in-project true # Make poetry use local .venv folder
    poetry install # Install dependencies
-   source .venv/bin/activate # Activate virtual environment in zsh
+   source .venv/bin/activate
    source .venv/bin/activate.[fish|csh]
   ```
 
